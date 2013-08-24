@@ -134,6 +134,10 @@ function getUIObject(res, ids) {
     return ret;
 }
 
+function isArray(obj) {
+    return Object.prototype.toString.call(obj) === '[object Array]';
+}
+
 function readFile(filename) {
     let status, buffer;
     let file = Gio.File.new_for_path(filename);
