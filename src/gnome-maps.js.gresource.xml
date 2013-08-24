@@ -13,6 +13,7 @@
     <file>notification.js</file>
     <file>path.js</file>
     <file>placeStore.js</file>
+    <file>epaf.js</file>
     <file>route.js</file>
     <file>routeService.js</file>
     <file>searchPopup.js</file>
