@@ -87,12 +87,9 @@ const TurnPoint = new Lang.Class({
     },
 
     isDestination: function() {
-        if(   this._type === TurnPointType.START
-           || this._type === TurnPointType.VIA
-           || this._type === TurnPointType.STOP)
-            return true;
-        else
-            return false;
+        return this._type === TurnPointType.START
+            || this._type === TurnPointType.VIA
+            || this._type === TurnPointType.STOP;
     },
 
     getMarker: function() {
