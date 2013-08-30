@@ -73,10 +73,11 @@ const MainWindow = new Lang.Class({
                 Application.routeService.getRoute([routeQuery.from, routeQuery.to],
                                                   routeQuery.transportation,
                                                   (function(err, result) {
-                                                      if(!err)
+                                                      if(!err) {
                                                           routeModel.update(result);
-                                                      else
-                                                          log("Couldn't do route'");
+                                                      } else {
+                                                          log(err);
+                                                      }
                                                   }));
             } else {
                 // TODO: implement
@@ -100,6 +101,16 @@ const MainWindow = new Lang.Class({
 
         this._overlay.add_overlay(new ZoomControl.ZoomControl(this.mapView));
         this._overlay.show_all();
+
+        const Geocode = imports.gi.GeocodeGlib;
+        let berlin = new Geocode.Location({ latitude: 52.536273, longitude: 13.007813 });
+        let kiev = new Geocode.Location({ latitude:50.289339, longitude: 30.761719 });
+        let other = new Geocode.Location({ latitude:51.289339, longitude: 31.761719 });
+
+        routeQuery.setMany({ from: berlin, to: kiev });
+        Mainloop.timeout_add(10000, (function() {
+            routeQuery.setMany({ from: kiev, to: other });
+        }));
     },
 
     _initSearchWidgets: function() {

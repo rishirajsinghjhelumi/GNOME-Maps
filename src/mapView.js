@@ -55,7 +55,7 @@ const MapView = new Lang.Class({
     Name: 'MapView',
     Extends: GtkChamplain.Embed,
 
-    _init: function() {
+    _init: function(routeModel) {
         this.parent();
 
         this.actor = this.get_view();
@@ -71,6 +71,10 @@ const MapView = new Lang.Class({
         this._sidebar = new Sidebar.Sidebar(this);
         // Don't show sidebar until it has something in it
         //this.view.add_child(this._sidebar.actor);
+
+        this._routeLayer = new Champlain.PathLayer();
+        this._routeLayer.set_stroke_width(2.0);
+        this.view.add_layer(this._routeLayer);
 
         this._markerLayer = new Champlain.MarkerLayer();
         this._markerLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
@@ -95,6 +99,12 @@ const MapView = new Lang.Class({
         this._updateUserLocation();
         this.geoclue.connect("location-changed",
                              this._updateUserLocation.bind(this));
+
+        routeModel.connect('update', (function() {
+            this.showRoute(routeModel);
+        }).bind(this));
+        routeModel.connect('reset',
+                           this._routeLayer.remove_all.bind(this._routeLayer));
     },
 
     setMapType: function(mapType) {
@@ -183,6 +193,14 @@ const MapView = new Lang.Class({
     showNGotoLocation: function(place) {
         let mapLocation = this.showLocation(place);
         mapLocation.goTo(true);
+    },
+
+    showRoute: function(route) {
+        this._routeLayer.remove_all();
+        route.path.forEach(function(coordinate) {
+            this._routeLayer.add_node(coordinate);
+        }, this);
+        this.view.ensure_visible(route.bbox, true);
     },
 
     _onViewMoved: function() {
