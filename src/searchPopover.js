@@ -26,83 +26,47 @@ const GObject = imports.gi.GObject;
 const Lang = imports.lang;
 const Utils = imports.utils;
 
-const Columns = {
-    ICON:         0,
-    PLACE:        1,
-    DESCRIPTION:  2,
-};
+const PlacePopover = imports.placePopover;
 
 const _PLACE_ICON_SIZE = 20;
+const _ITEMS_VISIBLE = 10;
 
 const SearchPopover = new Lang.Class({
     Name: 'SearchPopover',
-    Extends: Gtk.Popover,
+    Extends: PlacePopover.PlacePopover,
 
-    _init: function(relativeTo, numVisible) {
-        this._numVisible = numVisible;
-
-        let ui = Utils.getUIObject('search-popover', ['scrolled-window',
-                                                    'stack',
-                                                    'spinner',
-                                                    'treeview',]);
-
-        this._stack = ui.stack;
-        this._scrolledWindow = ui.scrolledWindow;
-        this._spinner = ui.spinner;
-        this._treeView = ui.treeview;
-
-        let model = new Gtk.ListStore();
-        model.set_column_types([GdkPixbuf.Pixbuf,
-                                GObject.TYPE_OBJECT,
-                                GObject.TYPE_STRING]);
-        this._treeView.model = model;
-
-        this._treeView.connect('row-activated',
-                               this._onRowActivated.bind(this));
-        this._initList();
-        this.height_request = this._cellHeight * numVisible;
-        this._scrolledWindow.set_min_content_height(this.height_request);
-
-        this.parent({ relative_to: relativeTo,
-                      width_request: 500,
-                      no_show_all: true,
-                      visible: true });
-
-        this.get_style_context().add_class('maps-popover');
-        this.add(this._stack);
-        this.hide();
+    _init: function(relativeTo) {
+        this.parent(relativeTo, _ITEMS_VISIBLE);
     },
 
-    _initList: function() {
-        let column = new Gtk.TreeViewColumn();
+    updateResult: function(places, searchString) {
+        let model = this._treeView.get_model();
 
-        this._treeView.append_column(column);
+        model.clear();
 
-        let cell = new Gtk.CellRendererPixbuf({ xpad: 2 });
-        column.pack_start(cell, false);
-        column.add_attribute(cell, 'pixbuf', Columns.ICON);
+        places.forEach((function(place) {
+            if (!place.location)
+                return;
 
-        cell = new Gtk.CellRendererText({ xpad: 8,
-                                          ypad: 8 });
-        column.pack_start(cell, true);
-        column.add_attribute(cell, 'markup', Columns.DESCRIPTION);
+            let iter = model.append();
+            let location = place.get_location();
+            let icon = place.icon;
 
-        this._cellHeight = column.cell_get_size(null)[3];
-        this._cellHeight += cell.get_preferred_height(this._treeView)[0];
-    },
+            let description = GLib.markup_escape_text(location.description, -1);
+            description = this._boldMatch(description, searchString);
 
-    _onRowActivated: function(widget, path, column) {
-        let model = this._treeView.model;
-        let iter_valid, iter;
+            model.set(iter,
+                      [PlacePopover.Columns.PLACE,
+                        PlacePopover.Columns.DESCRIPTION],
+                      [place,
+                       description]);
 
-        if (model === null)
-            return;
-
-        [iter_valid, iter] = model.get_iter(path);
-        if (!iter_valid)
-            return;
-
-        this.emit('selected', model.get_value(iter, Columns.PLACE));
+            if (icon !== null) {
+                Utils.load_icon(icon, _PLACE_ICON_SIZE, function(pixbuf) {
+                    model.set(iter, [PlacePopover.Columns.ICON], [pixbuf]);
+                });
+            }
+        }).bind(this));
     },
 
     showSpinner: function() {
@@ -125,48 +89,6 @@ const SearchPopover = new Lang.Class({
         this._treeView.grab_focus();
     },
 
-    vfunc_show: function() {
-        this._treeView.columns_autosize();
-        this.parent();
-    },
-
-    vfunc_hide: function() {
-        if (this._spinner.active)
-            this._spinner.stop();
-
-        this.parent();
-    },
-
-    updateResult: function(places, searchString) {
-        let model = this._treeView.get_model();
-
-        model.clear();
-
-        places.forEach((function(place) {
-            if (!place.location)
-                return;
-
-            let iter = model.append();
-            let location = place.get_location();
-            let icon = place.icon;
-
-            let description = GLib.markup_escape_text(location.description, -1);
-            description = this._boldMatch(description, searchString);
-
-            model.set(iter,
-                      [Columns.DESCRIPTION,
-                       Columns.PLACE],
-                      [description,
-                       place]);
-
-            if (icon !== null) {
-                Utils.load_icon(icon, _PLACE_ICON_SIZE, function(pixbuf) {
-                    model.set(iter, [Columns.ICON], [pixbuf]);
-                });
-            }
-        }).bind(this));
-    },
-
     _boldMatch: function(description, searchString) {
         searchString = searchString.toLowerCase();
 
@@ -180,4 +102,3 @@ const SearchPopover = new Lang.Class({
         return description;
     }
 });
-Utils.addSignalMethods(SearchPopover.prototype);

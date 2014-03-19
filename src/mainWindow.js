@@ -82,7 +82,7 @@ const MainWindow = new Lang.Class({
     },
 
     _initSearchWidgets: function() {
-        this._searchPopover = new SearchPopover.SearchPopover(this._searchEntry, 10);
+        this._searchPopover = new SearchPopover.SearchPopover(this._searchEntry);
 
         this._searchPopover.connect('selected',
                                   this._onSearchPopoverSelected.bind(this));

@@ -12,6 +12,7 @@
     <file>mapView.js</file>
     <file>notification.js</file>
     <file>path.js</file>
+    <file>placePopover.js</file>
     <file>placeStore.js</file>
     <file>searchPopover.js</file>
     <file>settings.js</file>
