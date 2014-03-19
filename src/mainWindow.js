@@ -32,7 +32,7 @@ const Mainloop = imports.mainloop;
 const Application = imports.application;
 const MapView = imports.mapView;
 const LayersPopover = imports.layersPopover;
-const SearchPopup = imports.searchPopup;
+const SearchPopover = imports.searchPopover;
 const ContextMenu = imports.contextMenu;
 const PlaceStore = imports.placeStore;
 const Utils = imports.utils;
@@ -82,18 +82,18 @@ const MainWindow = new Lang.Class({
     },
 
     _initSearchWidgets: function() {
-        this._searchPopup = new SearchPopup.SearchPopup(this._searchEntry, 10);
+        this._searchPopover = new SearchPopover.SearchPopover(this._searchEntry, 10);
 
-        this._searchPopup.connect('selected',
-                                  this._onSearchPopupSelected.bind(this));
-        this._searchPopup.connect('selected',
+        this._searchPopover.connect('selected',
+                                  this._onSearchPopoverSelected.bind(this));
+        this._searchPopover.connect('selected',
                                   this._overlay.grab_focus.bind(this._overlay));
         this.mapView.view.connect('button-press-event',
-                                  this._searchPopup.hide.bind(this._searchPopup));
+                                  this._searchPopover.hide.bind(this._searchPopover));
         this.mapView.view.connect('button-press-event',
                                   this._overlay.grab_focus.bind(this._overlay));
         this._searchEntry.connect('changed',
-                                  this._searchPopup.hide.bind(this._searchPopup));
+                                  this._searchPopover.hide.bind(this._searchPopover));
 
         this._searchCompletion.set_model(this._placeStore);
         this._searchCompletion.connect('match-selected', (function(c, m, iter) {
@@ -220,18 +220,18 @@ const MainWindow = new Lang.Class({
         return false;
     },
 
-    _onSearchPopupSelected: function(widget, place) {
+    _onSearchPopoverSelected: function(widget, place) {
         this.mapView.showNGotoLocation(place);
 
         this._placeStore.addRecent(place);
-        this._searchPopup.hide();
+        this._searchPopover.hide();
     },
 
     _onSearchActivate: function() {
         let searchString = this._searchEntry.get_text();
 
         if (searchString.length > 0) {
-            this._searchPopup.showSpinner();
+            this._searchPopover.showSpinner();
             this.mapView.geocodeSearch(searchString,
                                        this._showSearchResults.bind(this));
         }
@@ -239,11 +239,11 @@ const MainWindow = new Lang.Class({
 
     _showSearchResults: function(places) {
         if (places === null) {
-            this._searchPopup.hide();
+            this._searchPopover.hide();
             return;
         }
-        this._searchPopup.updateResult(places, this._searchEntry.get_text());
-        this._searchPopup.showResult();
+        this._searchPopover.updateResult(places, this._searchEntry.get_text());
+        this._searchPopover.showResult();
     },
 
     _quit: function() {

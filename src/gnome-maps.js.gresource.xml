@@ -13,7 +13,7 @@
     <file>notification.js</file>
     <file>path.js</file>
     <file>placeStore.js</file>
-    <file>searchPopup.js</file>
+    <file>searchPopover.js</file>
     <file>settings.js</file>
     <file>sidebar.js</file>
     <file>userLocation.js</file>

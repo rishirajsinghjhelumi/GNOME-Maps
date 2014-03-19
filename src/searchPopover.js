@@ -34,14 +34,14 @@ const Columns = {
 
 const _PLACE_ICON_SIZE = 20;
 
-const SearchPopup = new Lang.Class({
-    Name: 'SearchPopup',
+const SearchPopover = new Lang.Class({
+    Name: 'SearchPopover',
     Extends: Gtk.Popover,
 
     _init: function(relativeTo, numVisible) {
         this._numVisible = numVisible;
 
-        let ui = Utils.getUIObject('search-popup', ['scrolled-window',
+        let ui = Utils.getUIObject('search-popover', ['scrolled-window',
                                                     'stack',
                                                     'spinner',
                                                     'treeview',]);
@@ -180,4 +180,4 @@ const SearchPopup = new Lang.Class({
         return description;
     }
 });
-Utils.addSignalMethods(SearchPopup.prototype);
+Utils.addSignalMethods(SearchPopover.prototype);
