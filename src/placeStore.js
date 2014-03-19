@@ -99,6 +99,20 @@ const PlaceStore = new Lang.Class({
         this._addPlace(place, PlaceType.FAVORITE, new Date().getTime());
     },
 
+    removePlace: function(place, placeType) {
+        if (!this.exists(place, placeType))
+            return;
+
+        this._removeIf((function(model, iter) {
+            let p = model.get_value(iter, Columns.PLACE);
+            if (p.name === place.name) {
+                this._typeTable[place.name] = null;
+                return true;
+            }
+            return false;
+        }).bind(this), true);
+    },
+
     addRecent: function(place) {
         if (this.exists(place, PlaceType.RECENT)) {
             this._updateAddTime(place);
