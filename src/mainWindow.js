@@ -33,6 +33,7 @@ const Application = imports.application;
 const MapView = imports.mapView;
 const LayersPopover = imports.layersPopover;
 const SearchPopover = imports.searchPopover;
+const FavoritePopover = imports.favoritePopover;
 const ContextMenu = imports.contextMenu;
 const PlaceStore = imports.placeStore;
 const Utils = imports.utils;
@@ -53,7 +54,10 @@ const MainWindow = new Lang.Class({
         let ui = Utils.getUIObject('main-window', [ 'app-window',
                                                     'search-entry',
                                                     'search-completion',
-                                                    'layers-button']);
+                                                    'layers-button',
+                                                    'list-favorite-button']);
+
+        this._favoriteButton = ui.listFavoriteButton;
         this._searchEntry = ui.searchEntry;
         this._searchCompletion = ui.searchCompletion;
         this.window = ui.appWindow;
@@ -72,6 +76,7 @@ const MainWindow = new Lang.Class({
 
         ui.layersButton.popover = new LayersPopover.LayersPopover();
 
+        this._initFavoritePopover();
         this._initSearchWidgets();
         this._initActions();
         this._initSignals();
@@ -81,11 +86,23 @@ const MainWindow = new Lang.Class({
         this._overlay.show_all();
     },
 
+    _initFavoritePopover: function() {
+        let model = this._placeStore.getModelForPlaceType(PlaceStore.PlaceType.FAVORITE);
+        let popover = new FavoritePopover.FavoritePopover(this._favoriteButton, model);
+
+        popover.connect('selected',
+                                  this._onPopoverSelected.bind(this));
+        popover.connect('selected',
+                                  this._overlay.grab_focus.bind(this._overlay));
+
+        this._favoriteButton.set_popover(popover);
+    },
+
     _initSearchWidgets: function() {
         this._searchPopover = new SearchPopover.SearchPopover(this._searchEntry);
 
         this._searchPopover.connect('selected',
-                                  this._onSearchPopoverSelected.bind(this));
+                                  this._onPopoverSelected.bind(this));
         this._searchPopover.connect('selected',
                                   this._overlay.grab_focus.bind(this._overlay));
         this.mapView.view.connect('button-press-event',
@@ -220,13 +237,6 @@ const MainWindow = new Lang.Class({
         return false;
     },
 
-    _onSearchPopoverSelected: function(widget, place) {
-        this.mapView.showNGotoLocation(place);
-
-        this._placeStore.addRecent(place);
-        this._searchPopover.hide();
-    },
-
     _onSearchActivate: function() {
         let searchString = this._searchEntry.get_text();
 
@@ -235,6 +245,13 @@ const MainWindow = new Lang.Class({
             this.mapView.geocodeSearch(searchString,
                                        this._showSearchResults.bind(this));
         }
+    },
+
+    _onPopoverSelected: function(widget, place, popover) {
+        this.mapView.showNGotoLocation(place);
+
+        this._placeStore.addRecent(place);
+        popover.hide();
     },
 
     _showSearchResults: function(places) {
