@@ -47,14 +47,7 @@ const UserLocation = new Lang.Class({
                                                  -this._locationMarker.get_height(),
                                                  0);
         }).bind(this));
-        let pin_actor = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/pin.svg");
-        if (!pin_actor)
-            return;
-        let bubbleActor = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/bubble.svg");
-        if (!bubbleActor)
-            return;
-        bubbleActor.set_x_expand(true);
-        bubbleActor.set_y_expand(true);
+
         /* Translators: Showing name of place where user currently is and
                         accuracy of this information (which is translated
                         separately)
@@ -71,13 +64,15 @@ const UserLocation = new Lang.Class({
                                                 alpha: 255 }));
         let layout = new Clutter.BinLayout();
         let descriptionActor = new Clutter.Actor({ layout_manager: layout });
-        descriptionActor.add_child(bubbleActor);
+        descriptionActor.add_child(this._bubbleActor);
         descriptionActor.add_child(textActor);
+
+        this._addFavoriteToggleActor(descriptionActor);
 
         layout = new Clutter.BoxLayout({ vertical: true });
         let locationActor = new Clutter.Actor({ layout_manager: layout });
         locationActor.add_child(descriptionActor);
-        locationActor.add_child(pin_actor);
+        locationActor.add_child(this._pinActor);
 
         this._locationMarker.add_actor(locationActor);
 
@@ -135,5 +130,6 @@ const UserLocation = new Lang.Class({
             this._accuracyMarker.set_size(size);
             this._accuracyMarker.show();
         }
-    }
+    },
+
 });

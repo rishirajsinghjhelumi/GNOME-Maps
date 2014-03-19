@@ -23,6 +23,7 @@
 const Clutter = imports.gi.Clutter;
 const Champlain = imports.gi.Champlain;
 const Geocode = imports.gi.GeocodeGlib;
+const GObject = imports.gi.GObject;
 
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
@@ -30,11 +31,15 @@ const Signals = imports.signals;
 
 const Utils = imports.utils;
 const Path = imports.path;
+const PlaceStore = imports.placeStore;
 const _ = imports.gettext.gettext;
+const Application = imports.application;
 
 const _MAX_DISTANCE = 19850; // half of Earth's curcumference (km)
 const _MIN_ANIMATION_DURATION = 2000; // msec
 const _MAX_ANIMATION_DURATION = 5000; // msec
+
+const _FAVORITE_ICON_SIZE = 20;
 
 // A map location object with an added accuracy.
 const MapLocation = new Lang.Class({
@@ -54,11 +59,14 @@ const MapLocation = new Lang.Class({
 
         this._mapView = mapView;
         this._view = mapView.view;
+        this._place = place;
         this.latitude = place.location.latitude;
         this.longitude = place.location.longitude;
         this.description = place.location.description;
         this.accuracy = place.location.accuracy;
         this.type = place.place_type;
+
+        this._initActors();
     },
 
     // Go to this location from the current location on the map, optionally
@@ -106,10 +114,107 @@ const MapLocation = new Lang.Class({
     },
 
     show: function(layer) {
-        let marker = new Champlain.Label({ text: this.description });
+        layer.remove_all();
+
+        let marker = new Champlain.CustomMarker();
         marker.set_location(this.latitude, this.longitude);
+        marker.connect('notify::size', (function() {
+            let translate_x = -Math.floor(marker.get_width() / 2);
+            marker.set_translation(translate_x,-marker.get_height(),0);
+        }).bind(this));
+
+        let text = _("%s").format (this.description);
+        let textActor = new Clutter.Text({ text: text });
+        textActor.set_use_markup(true);
+        textActor.set_margin_left(6);
+        textActor.set_margin_right(6);
+        textActor.set_color(new Clutter.Color({ red: 255,
+                                                blue: 255,
+                                                green: 255,
+                                                alpha: 255 }));
+        let layout = new Clutter.BinLayout();
+        let descriptionActor = new Clutter.Actor({ layout_manager: layout });
+        descriptionActor.add_child(this._bubbleActor);
+        descriptionActor.add_child(textActor);
+
+        this._addFavoriteToggleActor(descriptionActor);
+
+        layout = new Clutter.BoxLayout({ vertical: true });
+        let locationActor = new Clutter.Actor({ layout_manager: layout });
+        locationActor.add_child(descriptionActor);
+
+        marker.add_actor(locationActor);
+
         layer.add_marker(marker);
-        Utils.debug("Added marker at " + this.latitude + ", " + this.longitude);
+
+    },
+
+    _initActors: function(){
+
+        this._bubbleActor = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/bubble.svg");
+        if (!this._bubbleActor)
+            return;
+        this._bubbleActor.set_x_expand(true);
+        this._bubbleActor.set_y_expand(true);
+
+        this._pinActor = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/pin.svg");
+        if (!this._pinActor)
+            return;
+
+    },
+
+    _addFavoriteToggleActor: function(descriptionActor){
+
+        let favoriteMarkedActor = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/favorite-checked.svg");
+        if (!favoriteMarkedActor)
+            return;
+
+        let favoriteUnMarkedActor = Utils.CreateActorFromImageFile(Path.ICONS_DIR + "/favorite-unchecked.svg");
+        if (!favoriteUnMarkedActor)
+            return;
+
+        let [bubbleSizeX, bubbleSizeY] = descriptionActor.get_size();
+        let self = this;
+
+        favoriteUnMarkedActor.set_position(bubbleSizeX - _FAVORITE_ICON_SIZE - 5, 10);
+        favoriteUnMarkedActor.set_reactive(true);
+        favoriteUnMarkedActor.set_size(_FAVORITE_ICON_SIZE,_FAVORITE_ICON_SIZE);
+        favoriteUnMarkedActor.connect("button-press-event", function(stage, event) {
+            descriptionActor.remove_child(favoriteUnMarkedActor);
+            descriptionActor.add_child(favoriteMarkedActor);
+            self._onFavoriteClick(true);
+        });
+
+        favoriteMarkedActor.set_position(bubbleSizeX - _FAVORITE_ICON_SIZE - 5, 10);
+        favoriteMarkedActor.set_reactive(true);
+        favoriteMarkedActor.set_size(_FAVORITE_ICON_SIZE,_FAVORITE_ICON_SIZE);
+        favoriteMarkedActor.connect("button-press-event", function(stage, event) {
+            descriptionActor.remove_child(favoriteMarkedActor);
+            descriptionActor.add_child(favoriteUnMarkedActor);
+            self._onFavoriteClick(false);
+        });
+
+        if(this._isFavorite(this._place)){
+            descriptionActor.add_child(favoriteMarkedActor);
+        }
+        else{
+            descriptionActor.add_child(favoriteUnMarkedActor);
+        }
+
+    },
+
+    _onFavoriteClick: function(mark){
+        if(!this._place)
+            return;
+
+        if(mark)
+            Application.placeStore.addFavorite(this._place);
+        else
+            Application.placeStore.removePlace(this._place,PlaceStore.PlaceType.FAVORITE);
+    },
+
+    _isFavorite: function(place){
+        return Application.placeStore.exists(place,PlaceStore.PlaceType.FAVORITE);
     },
 
     showNGoTo: function(animate, layer) {
