@@ -113,6 +113,19 @@ const PlaceStore = new Lang.Class({
         }).bind(this), true);
     },
 
+    getModelForPlaceType: function(placeType) {
+        let filter = new Gtk.TreeModelFilter({ child_model: this });
+
+        filter.set_visible_func(function(model, iter) {
+            let type = model.get_value(iter, Columns.TYPE);
+            if (type && type === placeType)
+                return true;
+            return false;
+        });
+
+        return filter;
+    },
+
     addRecent: function(place) {
         if (this.exists(place, PlaceType.RECENT)) {
             this._updateAddTime(place);
