@@ -40,6 +40,7 @@ const Path = imports.path;
 const MapLocation = imports.mapLocation;
 const UserLocation = imports.userLocation;
 const Geoclue = imports.geoclue;
+const POIMapSource = imports.poiMapSource;
 const _ = imports.gettext.gettext;
 
 const MapType = {
@@ -90,6 +91,7 @@ const MapView = new Lang.Class({
         this._factory = Champlain.MapSourceFactory.dup_default();
         this.setMapType(MapType.STREET);
 
+        this.view.add_overlay_source(new POIMapSource.POIMapSource(), 255);
 
         this.geoclue = new Geoclue.Geoclue();
         this._updateUserLocation();
