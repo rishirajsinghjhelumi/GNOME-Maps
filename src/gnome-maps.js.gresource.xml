@@ -14,6 +14,7 @@
     <file>notificationManager.js</file>
     <file>path.js</file>
     <file>placeStore.js</file>
+    <file>poiMapSource.js</file>
     <file>searchPopup.js</file>
     <file>settings.js</file>
     <file>sidebar.js</file>
