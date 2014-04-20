@@ -38,6 +38,8 @@ const PlaceStore = imports.placeStore;
 const Utils = imports.utils;
 const Config = imports.config;
 const ZoomControl = imports.zoomControl;
+const RouteService = imports.routeService;
+const Route = imports.route;
 
 const _ = imports.gettext.gettext;
 
@@ -63,7 +65,26 @@ const MainWindow = new Lang.Class({
 
         ui.appWindow.add(this._overlay);
 
-        this.mapView = new MapView.MapView();
+        // NOTE: Maybe call these *model?
+        let routeQuery = new RouteService.Query();
+        let routeModel = new Route.Route();
+        routeQuery.connect('change', (function() {
+            if(routeQuery.from && routeQuery.to) {
+                Application.routeService.getRoute([routeQuery.from, routeQuery.to],
+                                                  routeQuery.transportation,
+                                                  (function(err, result) {
+                                                      if(!err)
+                                                          routeModel.update(result);
+                                                      else
+                                                          log("Couldn't do route'");
+                                                  }));
+            } else {
+                // TODO: implement
+                // NOTE: think about whether we should reset here
+                routeModel.reset();
+            }
+        }).bind(this));
+        this.mapView = new MapView.MapView(routeModel);
         overlay.add(this.mapView);
 
         this.mapView.gotoUserLocation(false);
