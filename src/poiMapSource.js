@@ -26,6 +26,7 @@ const Clutter = imports.gi.Clutter;
 const Cogl = imports.gi.Cogl;
 
 const Utils = imports.utils;
+const OverpassQueryManager = imports.overpassQueryManager;
 
 const _POI_ICON_SIZE = 20;
 
@@ -121,6 +122,9 @@ const POIMapSource = new Lang.Class({
     },
 
     vfunc_fill_tile: function(tile) {
+
+        log(tile.zoom_level);
+
         if (tile.get_state() === Champlain.State.DONE)
             return;
 
@@ -129,20 +133,36 @@ const POIMapSource = new Lang.Class({
             return;
         }
 
-        let places = [];
-        let forward = Geocode.Forward.new_for_string('[pubs]');
-        forward.search_area = this._bboxFromTile(tile);
-        forward.bounded = true;
-        forward.search_async (null, (function(forward, res) {
-            try {
-                places = forward.search_finish(res);
-            } catch (e) {
-                tile.set_state(Champlain.State.DONE);
-                return;
-            }
-            tile.data = places;
-            this._render(tile);
-        }).bind(this));
+        let QM = new OverpassQueryManager.OverpassQueryManager({});
+        QM.addSearchPhrase('amenity', 'pub');
+        QM.addSearchPhrase('amenity', 'hospital');
+
+        let bbox = this._bboxFromTile(tile);
+        QM.setProperty('bbox',{
+            'south_lat': bbox.bottom,
+            'west_lon': bbox.right,
+            'north_lat': bbox.top,
+            'east_lon': bbox.left
+        });
+
+        let places = QM.fetchPois() || [];
+        tile.data = places;
+        this._render(tile);
+
+        // let places = [];
+        // let forward = Geocode.Forward.new_for_string('[pubs]');
+        // forward.search_area = this._bboxFromTile(tile);
+        // forward.bounded = true;
+        // forward.search_async (null, (function(forward, res) {
+        //     try {
+        //         places = forward.search_finish(res);
+        //     } catch (e) {
+        //         tile.set_state(Champlain.State.DONE);
+        //         return;
+        //     }
+        //     tile.data = places;
+        //     this._render(tile);
+        // }).bind(this));
     },
 
     vfunc_get_tile_size: function() {
