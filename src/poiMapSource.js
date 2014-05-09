@@ -48,6 +48,10 @@ const POIMapSource = new Lang.Class({
         this._poiSelectedCallback = function(place) {
             log(place.name);
         };
+
+        this.QM = new OverpassQueryManager.OverpassQueryManager({});
+        this.QM.addSearchPhrase('amenity', 'pub');
+        this.QM.addSearchPhrase('amenity', 'hospital');
     },
 
     _sinH: function(arg) {
@@ -121,6 +125,12 @@ const POIMapSource = new Lang.Class({
         tile.display_content();
     },
 
+    callback: function(pois, tile, context) {
+
+        tile.data = pois;
+        context._render(tile);
+    },
+
     vfunc_fill_tile: function(tile) {
 
         log(tile.zoom_level);
@@ -133,22 +143,16 @@ const POIMapSource = new Lang.Class({
             return;
         }
 
-        let QM = new OverpassQueryManager.OverpassQueryManager({});
-        QM.addSearchPhrase('amenity', 'pub');
-        QM.addSearchPhrase('amenity', 'hospital');
+        let bboxTile = this._bboxFromTile(tile);
+        let bbox = {
+            'south_lat': bboxTile.bottom,
+            'west_lon': bboxTile.right,
+            'north_lat': bboxTile.top,
+            'east_lon': bboxTile.left
+        };
 
-        let bbox = this._bboxFromTile(tile);
-        QM.setProperty('bbox',{
-            'south_lat': bbox.bottom,
-            'west_lon': bbox.right,
-            'north_lat': bbox.top,
-            'east_lon': bbox.left
-        });
-
-        let places = QM.fetchPois() || [];
-        tile.data = places;
-        this._render(tile);
-
+        this.QM.fetchPois(bbox, tile, this.callback, this);
+        
         // let places = [];
         // let forward = Geocode.Forward.new_for_string('[pubs]');
         // forward.search_area = this._bboxFromTile(tile);

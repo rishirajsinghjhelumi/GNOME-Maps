@@ -35,7 +35,6 @@ const _DEFAULT_OUTPUT_SORT_ORDER = "qt";
 const _UNKNOWN = "Unknown";
 
 const BASE_URL = "http://overpass-api.de/api/interpreter";
-var requestNumber = 1;
 
 const OverpassQueryManager = new Lang.Class({
     Name: 'OverpassQueryManager',
@@ -66,8 +65,8 @@ const OverpassQueryManager = new Lang.Class({
         // Area of Search
         this.bbox = null;
 
-        this.rn = requestNumber;
-        requestNumber++;
+        // HTTP Session Variables
+        this.session = new Soup.SessionAsync();
     },
 
     setProperty: function(property, value) {
@@ -89,35 +88,36 @@ const OverpassQueryManager = new Lang.Class({
         });
     },
 
-    fetchPois: function() {
-        let query = this._generateOverpassQuery();
+    fetchPois: function(bbox, tile, callback, context) {
+        let query = this._generateOverpassQuery(bbox);
         let url = Format.vprintf("%s?data=%s",
             [
                 BASE_URL,
                 query
             ]);
 
-        log('in :' + this.rn);
-        let session = new Soup.SessionAsync();
         let uri = new Soup.URI(url);
         let request = new Soup.Message({method:"GET", uri:uri});
-        session.send_message(request);
+        let session = this.session;
 
-        log('out :' + this.rn);
-        let pois = JSON.parse(request.response_body.data)['elements'];
-        for (var i = 0; i < pois.length; i++) {
-            pois[i] = this._convertJSONPlaceToGeocodePlace(pois[i]);
-        }
+        this.session.queue_message(request, function(session, message) {
 
-        return pois;
+            let pois = JSON.parse(message.response_body.data)['elements'] || [];
+            for (var i = 0; i < pois.length; i++) {
+                pois[i] = this._convertJSONPlaceToGeocodePlace(pois[i]);
+            }
+
+            callback(pois, tile, context);
+
+        }.bind(this));
 
     },
 
-    _generateOverpassQuery: function() {
+    _generateOverpassQuery: function(bbox) {
 
         let query = Format.vprintf("%s%s%s%s;(%s);%s;",
             [
-                this._getBoundingBoxString(),
+                this._getBoundingBoxString(bbox),
                 this._getKeyValueString('timeout', this.timeout),
                 this._getKeyValueString('out', this.outputFormat),
                 this._getKeyValueString('maxsize', this.maxsize),
@@ -127,13 +127,13 @@ const OverpassQueryManager = new Lang.Class({
         return query;
     },
 
-    _getBoundingBoxString: function() {
+    _getBoundingBoxString: function(bbox) {
         return Format.vprintf("[bbox:%s,%s,%s,%s]",
             [
-                this.bbox.south_lat,
-                this.bbox.west_lon,
-                this.bbox.north_lat,
-                this.bbox.east_lon
+                bbox.south_lat,
+                bbox.west_lon,
+                bbox.north_lat,
+                bbox.east_lon
             ]);
     },
 
