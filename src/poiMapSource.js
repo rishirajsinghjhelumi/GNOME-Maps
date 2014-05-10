@@ -192,13 +192,6 @@ const POIMapSource = new Lang.Class({
         tile.display_content();
     },
 
-    callback: function(pois, tile, context) {
-
-        tile.data = pois;
-        log("num :: " + pois.length);
-        context._render(tile);
-    },
-
     vfunc_fill_tile: function(tile) {
 
         log(tile.zoom_level);
@@ -219,7 +212,11 @@ const POIMapSource = new Lang.Class({
             'east_lon': bboxTile.right
         };
 
-        this.QM.fetchPois(bbox, tile, this.callback, this);
+        this.QM.fetchPois(bbox, (function(pois){
+            tile.data = pois;
+            log("num :: " + pois.length);
+            this._render(tile);
+        }).bind(this));
         
         // let places = [];
         // let forward = Geocode.Forward.new_for_string('[pubs]');

@@ -89,7 +89,7 @@ const OverpassQueryManager = new Lang.Class({
         });
     },
 
-    fetchPois: function(bbox, tile, callback, context) {
+    fetchPois: function(bbox, callback) {
         let query = this._generateOverpassQuery(bbox);
         let url = Format.vprintf("%s?data=%s",
             [
@@ -103,12 +103,17 @@ const OverpassQueryManager = new Lang.Class({
 
         this.session.queue_message(request, function(session, message) {
 
+            if(message.status_code !== 200){
+                callback([]);
+                return;
+            }
+
             let pois = JSON.parse(message.response_body.data)['elements'] || [];
             for (var i = 0; i < pois.length; i++) {
                 pois[i] = this._convertJSONPlaceToGeocodePlace(pois[i]);
             }
 
-            callback(pois, tile, context);
+            callback(pois);
 
         }.bind(this));
 
