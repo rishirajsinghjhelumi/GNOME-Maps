@@ -25,23 +25,16 @@ const Geocode = imports.gi.GeocodeGlib;
 const Clutter = imports.gi.Clutter;
 const Cogl = imports.gi.Cogl;
 
+const MapOverlaySource = imports.mapOverlaySource;
 const Utils = imports.utils;
 const OverpassQueryManager = imports.overpassQueryManager;
 const GeoMath = imports.geoMath;
 
 const _POI_ICON_SIZE = 20;
 
-const _TILE_SIZE = 256;
-const _MAX_ZOOM_LEVEL = 0;
-const _MIN_ZOOM_LEVEL = 17;
-const _ID = 'maps-poi';
-const _NAME = 'GNOME Maps POI';
-const _LICENSE = 'tbd';
-const _LICENSE_URI = 'tbd';
-
 const POIMapSource = new Lang.Class({
     Name: 'POIMapSource',
-    Extends: Champlain.MapSource,
+    Extends: MapOverlaySource.MapOverlaySource,
 
     _init: function() {
         this.parent();
@@ -167,33 +160,5 @@ const POIMapSource = new Lang.Class({
             log("num :: " + pois.length);
             this._render(tile);
         }).bind(this));
-    },
-
-    vfunc_get_tile_size: function() {
-        return _TILE_SIZE;
-    },
-
-    vfunc_get_max_zoom_level: function() {
-        return _MAX_ZOOM_LEVEL;
-    },
-
-    vfunc_get_min_zoom_level: function() {
-        return _MIN_ZOOM_LEVEL;
-    },
-
-    vfunc_get_id: function() {
-        return _ID;
-    },
-
-    vfunc_get_name: function() {
-        return _NAME;
-    },
-
-    vfunc_get_license: function() {
-        return _LICENSE;
-    },
-
-    vfunc_get_license_uri: function() {
-        return _LICENSE_URI;
     }
 });
