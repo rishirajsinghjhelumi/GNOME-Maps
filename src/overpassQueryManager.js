@@ -66,8 +66,8 @@ const OverpassQueryManager = new Lang.Class({
         this.bbox = null;
 
         // HTTP Session Variables
-        this.session = new Soup.SessionAsync();
-        this.session.use_thread_context = true;
+        this._session = new Soup.SessionAsync();
+        this._session.use_thread_context = true;
     },
 
     setProperty: function(property, value) {
@@ -100,7 +100,7 @@ const OverpassQueryManager = new Lang.Class({
         let uri = new Soup.URI(url);
         let request = new Soup.Message({method:"GET", uri:uri});
 
-        this.session.queue_message(request, (function(obj, message) {
+        this._session.queue_message(request, (function(obj, message) {
 
             if(message.status_code !== Soup.KnownStatusCode.OK){
                 callback([]);
