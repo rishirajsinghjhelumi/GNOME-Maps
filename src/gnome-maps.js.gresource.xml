@@ -10,6 +10,7 @@
     <file>main.js</file>
     <file>mainWindow.js</file>
     <file>mapLocation.js</file>
+    <file>mapOverlaySource.js</file>
     <file>mapView.js</file>
     <file>notification.js</file>
     <file>notificationManager.js</file>
