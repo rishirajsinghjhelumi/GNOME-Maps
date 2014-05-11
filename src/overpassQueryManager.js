@@ -140,10 +140,10 @@ const OverpassQueryManager = new Lang.Class({
     _getBoundingBoxString: function(bbox) {
         return Format.vprintf("[bbox:%s,%s,%s,%s]",
             [
-                bbox.south_lat,
-                bbox.west_lon,
-                bbox.north_lat,
-                bbox.east_lon
+                bbox.bottom,
+                bbox.left,
+                bbox.top,
+                bbox.right
             ]);
     },
 

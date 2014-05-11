@@ -147,14 +147,7 @@ const POIMapSource = new Lang.Class({
             return;
         }
 
-        let bboxTile = this._bboxFromTile(tile);
-        let bbox = {
-            'south_lat': bboxTile.bottom,
-            'west_lon': bboxTile.left,
-            'north_lat': bboxTile.top,
-            'east_lon': bboxTile.right
-        };
-
+        let bbox = this._bboxFromTile(tile);
         this.QM.fetchPois(bbox, (function(pois){
             tile.data = pois;
             log("num :: " + pois.length);
