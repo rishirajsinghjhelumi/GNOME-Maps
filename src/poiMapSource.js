@@ -27,6 +27,7 @@ const Cogl = imports.gi.Cogl;
 
 const Utils = imports.utils;
 const OverpassQueryManager = imports.overpassQueryManager;
+const GeoMath = imports.geoMath;
 
 const _POI_ICON_SIZE = 20;
 
@@ -87,27 +88,12 @@ const POIMapSource = new Lang.Class({
         this.QM.addSearchPhrase("amenity", "townhall");
     },
 
-    _sinH: function(arg) {
-        return (Math.exp(arg) - Math.exp(-arg)) / 2;
-    },
-
-    _tileToLatitude: function(zoom, y) {
-        let n = Math.pow(2, zoom);
-        let latRad = Math.atan(this._sinH(Math.PI * (1 - 2 * y / n)));
-        return latRad * 180.0 / Math.PI;
-    },
-
-    _tileToLongitude: function(zoom, x) {
-        let n = Math.pow(2, zoom);
-        return x / n * 360.0 - 180.0;
-    },
-
     _bboxFromTile: function(tile) {
         return new Geocode.BoundingBox({
-            top: this._tileToLatitude(tile.zoom_level, tile.y),
-            left: this._tileToLongitude(tile.zoom_level, tile.x),
-            bottom: this._tileToLatitude(tile.zoom_level, tile.y + 1),
-            right: this._tileToLongitude(tile.zoom_level, tile.x + 1)
+            top: GeoMath.tileToLatitude(tile.zoom_level, tile.y),
+            left: GeoMath.tileToLongitude(tile.zoom_level, tile.x),
+            bottom: GeoMath.tileToLatitude(tile.zoom_level, tile.y + 1),
+            right: GeoMath.tileToLongitude(tile.zoom_level, tile.x + 1)
         });
     },
 
@@ -138,8 +124,8 @@ const POIMapSource = new Lang.Class({
                 }).bind(this));
                 iconMarker.set_content(image);
                 iconMarker.set_size(pixbuf.get_width(), pixbuf.get_height());
-                let tileLat = this._tileToLatitude(tile.zoom_level, tile.y);
-                let tileLon = this._tileToLongitude(tile.zoom_level, tile.x);
+                let tileLat = GeoMath.tileToLatitude(tile.zoom_level, tile.y);
+                let tileLon = GeoMath.tileToLongitude(tile.zoom_level, tile.x);
                 let location = place.location;
                 let x =
                     this.get_x(tile.zoom_level, location.longitude) -
