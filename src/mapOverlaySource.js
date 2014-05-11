@@ -38,6 +38,10 @@ const MapOverlaySource = new Lang.Class({
 		this.parent();
 	},
 
+	vfunc_fill_tile: function(tile) {
+		tile.set_state(Champlain.State.DONE);
+	},
+
 	vfunc_get_tile_size: function() {
 		return _TILE_SIZE;
 	},
