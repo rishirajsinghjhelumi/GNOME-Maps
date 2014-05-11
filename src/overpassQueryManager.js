@@ -99,23 +99,26 @@ const OverpassQueryManager = new Lang.Class({
 
         let uri = new Soup.URI(url);
         let request = new Soup.Message({method:"GET", uri:uri});
-        let session = this.session;
 
-        this.session.queue_message(request, function(session, message) {
+        this.session.queue_message(request, (function(obj, message) {
 
-            if(message.status_code !== 200){
+            if(message.status_code !== Soup.KnownStatusCode.OK){
                 callback([]);
                 return;
             }
 
-            let pois = JSON.parse(message.response_body.data)['elements'] || [];
+            let pois = [];
+            try{
+                pois = JSON.parse(message.response_body.data)['elements'];
+            } catch(e) {
+                pois = [];
+            }
+
             for (var i = 0; i < pois.length; i++) {
                 pois[i] = this._convertJSONPlaceToGeocodePlace(pois[i]);
             }
-
             callback(pois);
-
-        }.bind(this));
+        }).bind(this));
 
     },
 
