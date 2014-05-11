@@ -25,8 +25,8 @@ const Champlain = imports.gi.Champlain;
 const _TILE_SIZE = 256;
 const _MAX_ZOOM_LEVEL = 0;
 const _MIN_ZOOM_LEVEL = 17;
-const _ID = 'maps-poi';
-const _NAME = 'GNOME Maps POI';
+const _ID = 'maps-overlay';
+const _NAME = 'GNOME Maps Overlay';
 const _LICENSE = 'tbd';
 const _LICENSE_URI = 'tbd';
 
