@@ -90,13 +90,8 @@ const OverpassQueryManager = new Lang.Class({
     },
 
     fetchPois: function(bbox, callback) {
-        let query = this._generateOverpassQuery(bbox);
-        let url = Format.vprintf("%s?data=%s",
-            [
-                BASE_URL,
-                query
-            ]);
 
+        let url = this.getQueryUrl(bbox);
         let uri = new Soup.URI(url);
         let request = new Soup.Message({method:"GET", uri:uri});
 
@@ -122,9 +117,16 @@ const OverpassQueryManager = new Lang.Class({
 
     },
 
-    _generateOverpassQuery: function(bbox) {
+    getQueryUrl: function(bbox) {
+        return Format.vprintf("%s?data=%s",
+            [
+                BASE_URL,
+                this._generateOverpassQuery(bbox)
+            ]);
+    },
 
-        let query = Format.vprintf("%s%s%s%s;(%s);%s;",
+    _generateOverpassQuery: function(bbox) {
+        return Format.vprintf("%s%s%s%s;(%s);%s;",
             [
                 this._getBoundingBoxString(bbox),
                 this._getKeyValueString('timeout', this.timeout),
@@ -133,7 +135,6 @@ const OverpassQueryManager = new Lang.Class({
                 this._getPhraseString(),
                 this._getOutputString()
             ]);
-        return query;
     },
 
     _getBoundingBoxString: function(bbox) {
