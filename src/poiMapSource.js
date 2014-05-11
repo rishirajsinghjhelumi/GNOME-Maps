@@ -160,8 +160,6 @@ const POIMapSource = new Lang.Class({
 
     vfunc_fill_tile: function(tile) {
 
-        log(tile.zoom_level);
-
         if (tile.get_state() === Champlain.State.DONE)
             return;
 
@@ -183,21 +181,6 @@ const POIMapSource = new Lang.Class({
             log("num :: " + pois.length);
             this._render(tile);
         }).bind(this));
-        
-        // let places = [];
-        // let forward = Geocode.Forward.new_for_string('[pubs]');
-        // forward.search_area = this._bboxFromTile(tile);
-        // forward.bounded = true;
-        // forward.search_async (null, (function(forward, res) {
-        //     try {
-        //         places = forward.search_finish(res);
-        //     } catch (e) {
-        //         tile.set_state(Champlain.State.DONE);
-        //         return;
-        //     }
-        //     tile.data = places;
-        //     this._render(tile);
-        // }).bind(this));
     },
 
     vfunc_get_tile_size: function() {
