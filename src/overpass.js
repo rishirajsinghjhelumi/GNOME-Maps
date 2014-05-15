@@ -81,7 +81,7 @@ const Overpass = new Lang.Class({
         });
     },
 
-    fetchPois: function(bbox, callback) {
+    send: function(bbox, callback) {
 
         let url = this.getQueryUrl(bbox);
         let uri = new Soup.URI(url);

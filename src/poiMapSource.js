@@ -148,7 +148,7 @@ const POIMapSource = new Lang.Class({
         }
 
         let bbox = this._bboxFromTile(tile);
-        this.overpassQuery.fetchPois(bbox, (function(pois){
+        this.overpassQuery.send(bbox, (function(pois){
             tile.data = pois;
             log("num :: " + pois.length);
             this._render(tile);
