@@ -18,6 +18,7 @@
  * Author: Jonas Danielsson <jonas@threetimestwo.org>
  */
 
+const Champlain = imports.gi.Champlain;
 
 Math.sinH = function(arg) {
     return (Math.exp(arg) - Math.exp(-arg)) / 2.0;
@@ -47,4 +48,13 @@ function latitudeToTile(latitude, zoom) {
 	let n = (1 << zoom) * 1.0;
 	let latRad = latitude * Math.PI / 180.0;
 	return Math.floor( ( 1 - Math.log( Math.tan(latRad) + Math.sec(latRad) ) / Math.PI ) * 0.5 * n);
+}
+
+function bboxFromTile(tile) {
+	return new Champlain.BoundingBox({
+		top: tileToLatitude(tile.zoom_level, tile.y),
+		left: tileToLongitude(tile.zoom_level, tile.x),
+		bottom: tileToLatitude(tile.zoom_level, tile.y + 1),
+		right: tileToLongitude(tile.zoom_level, tile.x + 1)
+	});
 }

@@ -81,15 +81,6 @@ const POIMapSource = new Lang.Class({
         this.overpassQuery.addSearchTag("amenity", "townhall");
     },
 
-    _bboxFromTile: function(tile) {
-        return new Geocode.BoundingBox({
-            top: GeoMath.tileToLatitude(tile.zoom_level, tile.y),
-            left: GeoMath.tileToLongitude(tile.zoom_level, tile.x),
-            bottom: GeoMath.tileToLatitude(tile.zoom_level, tile.y + 1),
-            right: GeoMath.tileToLongitude(tile.zoom_level, tile.x + 1)
-        });
-    },
-
     // Maybe this should be in its own render class, a render class that
     // takes a list of places and render their icons?
     _render: function(tile) {
@@ -147,7 +138,7 @@ const POIMapSource = new Lang.Class({
             return;
         }
 
-        let bbox = this._bboxFromTile(tile);
+        let bbox = GeoMath.bboxFromTile(tile);
         this.overpassQuery.send(bbox, (function(pois){
             tile.data = pois;
             log("num :: " + pois.length);
