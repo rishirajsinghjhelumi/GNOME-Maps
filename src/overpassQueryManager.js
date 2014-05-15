@@ -59,8 +59,8 @@ const OverpassQueryManager = new Lang.Class({
         // data sort order : qt(fastest based on geography), ids, asc
         this.outputSortOrder = params.outputSortOrder || _DEFAULT_OUTPUT_SORT_ORDER;
 
-        // Types of phrases we want to search : pub, school, hospital etc
-        this.searchPhrases = [];
+        // Types of Tags we want to search : pub, school, hospital etc
+        this.searchTags = [];
 
         // Area of Search
         this.bbox = null;
@@ -70,13 +70,13 @@ const OverpassQueryManager = new Lang.Class({
         this._session.use_thread_context = true;
     },
 
-    addSearchPhrase: function(key, value){
+    addSearchTag: function(key, value){
 
         // The special phrase supported by OSM can be found at:
         // http://wiki.openstreetmap.org/wiki/Nominatim/Special_Phrases/EN
 
-        this.searchPhrases.push({
-            'type': key,
+        this.searchTags.push({
+            'key': key,
             'value': value
         });
     },
@@ -124,7 +124,7 @@ const OverpassQueryManager = new Lang.Class({
                 this._getKeyValueString('timeout', this.timeout),
                 this._getKeyValueString('out', this.outputFormat),
                 this._getKeyValueString('maxsize', this.maxsize),
-                this._getPhraseString(),
+                this._getTagString(),
                 this._getOutputString()
             ]);
     },
@@ -147,17 +147,17 @@ const OverpassQueryManager = new Lang.Class({
             ]);
     },
 
-    _getPhraseString: function() {
+    _getTagString: function() {
 
-        let phraseString = '';
-        this.searchPhrases.forEach(function(phrase){
-            phraseString += Format.vprintf('node[%s=%s];',
+        let tagString = '';
+        this.searchTags.forEach(function(tag){
+            tagString += Format.vprintf('node[%s=%s];',
                 [
-                    phrase.type,
-                    phrase.value
+                    tag.key,
+                    tag.value
                 ]);
         });
-        return phraseString;
+        return tagString;
     },
 
     _getOutputString: function() {
