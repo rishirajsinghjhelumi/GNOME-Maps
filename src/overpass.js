@@ -36,8 +36,8 @@ const _UNKNOWN = 'Unknown';
 
 const BASE_URL = 'http://overpass-api.de/api/interpreter';
 
-const OverpassQueryManager = new Lang.Class({
-    Name: 'OverpassQueryManager',
+const Overpass = new Lang.Class({
+    Name: 'Overpass',
 
     _init: function(params) {
 
@@ -201,4 +201,4 @@ const OverpassQueryManager = new Lang.Class({
     }
 
 });
-Signals.addSignalMethods(OverpassQueryManager.prototype);
+Signals.addSignalMethods(Overpass.prototype);

@@ -27,7 +27,7 @@ const Cogl = imports.gi.Cogl;
 
 const MapOverlaySource = imports.mapOverlaySource;
 const Utils = imports.utils;
-const OverpassQueryManager = imports.overpassQueryManager;
+const Overpass = imports.overpass;
 const GeoMath = imports.geoMath;
 
 const _POI_ICON_SIZE = 20;
@@ -43,42 +43,42 @@ const POIMapSource = new Lang.Class({
             log(place.name);
         };
 
-        this.QM = new OverpassQueryManager.OverpassQueryManager({});
-        this.QM.addSearchTag("aeroway", "aerodrome");
-        this.QM.addSearchTag("railway", "junction");
-        this.QM.addSearchTag("railway", "switch");
-        this.QM.addSearchTag("railway", "spur");
-        this.QM.addSearchTag("railway", "station");
-        this.QM.addSearchTag("railway", "yard");
-        this.QM.addSearchTag("amenity", "atm");
-        this.QM.addSearchTag("amenity", "bank");
-        this.QM.addSearchTag("amenity", "pub");
-        this.QM.addSearchTag("amenity", "doctors");
-        this.QM.addSearchTag("amenity", "dormitory");
-        this.QM.addSearchTag("amenity", "embassy");
-        this.QM.addSearchTag("amenity", "emergency_phone");
-        this.QM.addSearchTag("amenity", "fast_food");
-        this.QM.addSearchTag("amenity", "restaurant");
-        this.QM.addSearchTag("amenity", "library");
-        this.QM.addSearchTag("amenity", "market");
-        this.QM.addSearchTag("amenity", "marketplace");
-        this.QM.addSearchTag("amenity", "police");
-        this.QM.addSearchTag("amenity", "post_box");
-        this.QM.addSearchTag("amenity", "post_office");
-        this.QM.addSearchTag("amenity", "public_market");
-        this.QM.addSearchTag("amenity", "sauna");
-        this.QM.addSearchTag("amenity", "school");
-        this.QM.addSearchTag("amenity", "shelter");
-        this.QM.addSearchTag("amenity", "shop");
-        this.QM.addSearchTag("amenity", "shopping");
-        this.QM.addSearchTag("amenity", "social_club");
-        this.QM.addSearchTag("amenity", "supermarket");
-        this.QM.addSearchTag("amenity", "swingerclub");
-        this.QM.addSearchTag("amenity", "taxi");
-        this.QM.addSearchTag("amenity", "telephone");
-        this.QM.addSearchTag("amenity", "theatre");
-        this.QM.addSearchTag("amenity", "toilets");
-        this.QM.addSearchTag("amenity", "townhall");
+        this.overpassQuery = new Overpass.Overpass({});
+        this.overpassQuery.addSearchTag("aeroway", "aerodrome");
+        this.overpassQuery.addSearchTag("railway", "junction");
+        this.overpassQuery.addSearchTag("railway", "switch");
+        this.overpassQuery.addSearchTag("railway", "spur");
+        this.overpassQuery.addSearchTag("railway", "station");
+        this.overpassQuery.addSearchTag("railway", "yard");
+        this.overpassQuery.addSearchTag("amenity", "atm");
+        this.overpassQuery.addSearchTag("amenity", "bank");
+        this.overpassQuery.addSearchTag("amenity", "pub");
+        this.overpassQuery.addSearchTag("amenity", "doctors");
+        this.overpassQuery.addSearchTag("amenity", "dormitory");
+        this.overpassQuery.addSearchTag("amenity", "embassy");
+        this.overpassQuery.addSearchTag("amenity", "emergency_phone");
+        this.overpassQuery.addSearchTag("amenity", "fast_food");
+        this.overpassQuery.addSearchTag("amenity", "restaurant");
+        this.overpassQuery.addSearchTag("amenity", "library");
+        this.overpassQuery.addSearchTag("amenity", "market");
+        this.overpassQuery.addSearchTag("amenity", "marketplace");
+        this.overpassQuery.addSearchTag("amenity", "police");
+        this.overpassQuery.addSearchTag("amenity", "post_box");
+        this.overpassQuery.addSearchTag("amenity", "post_office");
+        this.overpassQuery.addSearchTag("amenity", "public_market");
+        this.overpassQuery.addSearchTag("amenity", "sauna");
+        this.overpassQuery.addSearchTag("amenity", "school");
+        this.overpassQuery.addSearchTag("amenity", "shelter");
+        this.overpassQuery.addSearchTag("amenity", "shop");
+        this.overpassQuery.addSearchTag("amenity", "shopping");
+        this.overpassQuery.addSearchTag("amenity", "social_club");
+        this.overpassQuery.addSearchTag("amenity", "supermarket");
+        this.overpassQuery.addSearchTag("amenity", "swingerclub");
+        this.overpassQuery.addSearchTag("amenity", "taxi");
+        this.overpassQuery.addSearchTag("amenity", "telephone");
+        this.overpassQuery.addSearchTag("amenity", "theatre");
+        this.overpassQuery.addSearchTag("amenity", "toilets");
+        this.overpassQuery.addSearchTag("amenity", "townhall");
     },
 
     _bboxFromTile: function(tile) {
@@ -148,7 +148,7 @@ const POIMapSource = new Lang.Class({
         }
 
         let bbox = this._bboxFromTile(tile);
-        this.QM.fetchPois(bbox, (function(pois){
+        this.overpassQuery.fetchPois(bbox, (function(pois){
             tile.data = pois;
             log("num :: " + pois.length);
             this._render(tile);

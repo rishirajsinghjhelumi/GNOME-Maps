@@ -13,7 +13,7 @@
     <file>mapOverlaySource.js</file>
     <file>mapView.js</file>
     <file>notification.js</file>
-    <file>overpassQueryManager.js</file>
+    <file>overpass.js</file>
     <file>path.js</file>
     <file>placeStore.js</file>
     <file>poiMapSource.js</file>
