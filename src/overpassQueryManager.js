@@ -66,7 +66,7 @@ const OverpassQueryManager = new Lang.Class({
         this.bbox = null;
 
         // HTTP Session Variables
-        this._session = new Soup.SessionAsync();
+        this._session = new Soup.Session();
         this._session.use_thread_context = true;
     },
 
