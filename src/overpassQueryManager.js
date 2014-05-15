@@ -161,7 +161,7 @@ const OverpassQueryManager = new Lang.Class({
     },
 
     _getOutputString: function() {
-        return Format.vprintf("out %s %s %s",
+        return Format.vprintf('out %s %s %s',
             [
                 this.outputInfo,
                 this.outputSortOrder,
