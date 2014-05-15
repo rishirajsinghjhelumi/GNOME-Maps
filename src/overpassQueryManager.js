@@ -27,14 +27,14 @@ const Geocode = imports.gi.GeocodeGlib;
 
 const _DEFAULT_TIMEOUT = 180;
 const _DEFAULT_MAXSIZE = 536870912;
-const _DEFAULT_OUTPUT_FORMAT = "json";
+const _DEFAULT_OUTPUT_FORMAT = 'json';
 const _DEFAULT_OUTPUT_COUNT = 1e6;
-const _DEFAULT_OUTPUT_INFO = "body";
-const _DEFAULT_OUTPUT_SORT_ORDER = "qt";
+const _DEFAULT_OUTPUT_INFO = 'body';
+const _DEFAULT_OUTPUT_SORT_ORDER = 'qt';
 
-const _UNKNOWN = "Unknown";
+const _UNKNOWN = 'Unknown';
 
-const BASE_URL = "http://overpass-api.de/api/interpreter";
+const BASE_URL = 'http://overpass-api.de/api/interpreter';
 
 const OverpassQueryManager = new Lang.Class({
     Name: 'OverpassQueryManager',
@@ -85,7 +85,7 @@ const OverpassQueryManager = new Lang.Class({
 
         let url = this.getQueryUrl(bbox);
         let uri = new Soup.URI(url);
-        let request = new Soup.Message({method:"GET", uri:uri});
+        let request = new Soup.Message({method:'GET', uri:uri});
 
         this._session.queue_message(request, (function(obj, message) {
 
@@ -110,7 +110,7 @@ const OverpassQueryManager = new Lang.Class({
     },
 
     getQueryUrl: function(bbox) {
-        return Format.vprintf("%s?data=%s",
+        return Format.vprintf('%s?data=%s',
             [
                 BASE_URL,
                 this._generateOverpassQuery(bbox)
@@ -118,7 +118,7 @@ const OverpassQueryManager = new Lang.Class({
     },
 
     _generateOverpassQuery: function(bbox) {
-        return Format.vprintf("%s%s%s%s;(%s);%s;",
+        return Format.vprintf('%s%s%s%s;(%s);%s;',
             [
                 this._getBoundingBoxString(bbox),
                 this._getKeyValueString('timeout', this.timeout),
@@ -130,7 +130,7 @@ const OverpassQueryManager = new Lang.Class({
     },
 
     _getBoundingBoxString: function(bbox) {
-        return Format.vprintf("[bbox:%s,%s,%s,%s]",
+        return Format.vprintf('[bbox:%s,%s,%s,%s]',
             [
                 bbox.bottom,
                 bbox.left,
@@ -140,7 +140,7 @@ const OverpassQueryManager = new Lang.Class({
     },
 
     _getKeyValueString: function(key, value) {
-        return Format.vprintf("[%s:%s]",
+        return Format.vprintf('[%s:%s]',
             [
                 key,
                 value
@@ -151,7 +151,7 @@ const OverpassQueryManager = new Lang.Class({
 
         let phraseString = '';
         this.searchPhrases.forEach(function(phrase){
-            phraseString += Format.vprintf('node["%s"="%s"];',
+            phraseString += Format.vprintf('node[%s=%s];',
                 [
                     phrase.type,
                     phrase.value
