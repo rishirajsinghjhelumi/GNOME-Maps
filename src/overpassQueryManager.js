@@ -70,14 +70,6 @@ const OverpassQueryManager = new Lang.Class({
         this._session.use_thread_context = true;
     },
 
-    setProperty: function(property, value) {
-        this[property] = value;
-    },
-
-    getProperty: function(property) {
-        return this[property];
-    },
-
     addSearchPhrase: function(key, value){
 
         // The special phrase supported by OSM can be found at:
