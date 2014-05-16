@@ -68,6 +68,7 @@ const Overpass = new Lang.Class({
         // HTTP Session Variables
         this._session = new Soup.Session();
         this._session.use_thread_context = true;
+        Soup.Session.prototype.add_feature.call(this._session, new Soup.ProxyResolverDefault());
     },
 
     addSearchTag: function(key, value){
