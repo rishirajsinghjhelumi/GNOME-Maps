@@ -172,22 +172,20 @@ const Overpass = new Lang.Class({
 
     _convertJSONPlaceToGeocodePlace: function(place) {
 
-        let location = new Geocode.Location({
-            latitude:    place.lat,
-            longitude:   place.lon,
-            accuracy:    0,
-            description: place.id.toString() // PONDER : Whether this should be id or name
-                                             // as Geocode has no option for a location id.
-                                             // or reverse_gecode this.
-        });
-
         let name = _UNKNOWN;
         if(place.tags)
             name = place.tags.name || _UNKNOWN;
 
-        let geocodePlace = Geocode.Place.new_with_location(
-            name,
-            Geocode.PlaceType.POINT_OF_INTEREST,
+        let location = new Geocode.Location({
+            latitude:    place.lat,
+            longitude:   place.lon,
+            accuracy:    0,
+            description: name
+        });
+
+        let geocodePlace = new Geocode.Place({
+            name: name,
+            place_type: Geocode.PlaceType.POINT_OF_INTEREST,
             // TODO : Add against PlaceType
             // Create a data structure which return Place Type for
             // the corresponding place.tags.(amenity | historic | highway ....)
@@ -195,8 +193,9 @@ const Overpass = new Lang.Class({
             //           "healthcare" => "Place.Type.HOSPITAL"
             //           "bus_stop" => "Place.Type.BUS_STOP"
             // Add Bugs against the types not in Geocode
-            location
-        );
+            location: location,
+            osm_id: place.id.toString()
+        });
 
         return geocodePlace;
     }
