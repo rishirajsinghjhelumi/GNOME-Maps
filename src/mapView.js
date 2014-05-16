@@ -105,6 +105,7 @@ const MapView = new Lang.Class({
 
         let source = this._factory.create_cached_source(mapType);
         this.view.set_map_source(source);
+        this.view.add_overlay_source(new POIMapSource.POIMapSource(), 255);
     },
 
     geocodeSearch: function(searchString, searchCompleteCallback) {
