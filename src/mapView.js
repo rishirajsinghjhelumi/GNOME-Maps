@@ -91,8 +91,6 @@ const MapView = new Lang.Class({
         this._factory = Champlain.MapSourceFactory.dup_default();
         this.setMapType(MapType.STREET);
 
-        this.view.add_overlay_source(new POIMapSource.POIMapSource(), 255);
-
         this.geoclue = new Geoclue.Geoclue();
         this._updateUserLocation();
         this.geoclue.connect("location-changed",
