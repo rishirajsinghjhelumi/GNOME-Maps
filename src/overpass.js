@@ -33,8 +33,37 @@ const _DEFAULT_OUTPUT_INFO = 'body';
 const _DEFAULT_OUTPUT_SORT_ORDER = 'qt';
 
 const _UNKNOWN = 'Unknown';
-
 const BASE_URL = 'http://overpass-api.de/api/interpreter';
+
+function convertJSONPlaceToGeocodePlace(place) {
+
+    let name = _UNKNOWN;
+    if(place.tags)
+        name = place.tags.name || _UNKNOWN;
+
+    let location = new Geocode.Location({
+        latitude:    place.lat,
+        longitude:   place.lon,
+        accuracy:    0,
+        description: name
+    });
+
+    let geocodePlace = new Geocode.Place({
+        name: name,
+        place_type: Geocode.PlaceType.POINT_OF_INTEREST,
+        // TODO : Add against PlaceType
+        // Create a data structure which return Place Type for
+        // the corresponding place.tags.(amenity | historic | highway ....)
+        // Example : "hospital" => "Place.Type.HOSPITAL"
+        //           "healthcare" => "Place.Type.HOSPITAL"
+        //           "bus_stop" => "Place.Type.BUS_STOP"
+        // Add Bugs against the types not in Geocode
+        location: location,
+        osm_id: place.id.toString()
+    });
+
+    return geocodePlace;
+}
 
 const Overpass = new Lang.Class({
     Name: 'Overpass',
@@ -102,9 +131,9 @@ const Overpass = new Lang.Class({
                 pois = [];
             }
 
-            for (var i = 0; i < pois.length; i++) {
-                pois[i] = this._convertJSONPlaceToGeocodePlace(pois[i]);
-            }
+            // for (var i = 0; i < pois.length; i++) {
+            //     pois[i] = convertJSONPlaceToGeocodePlace(pois[i]);
+            // }
             callback(pois);
         }).bind(this));
 
@@ -168,36 +197,6 @@ const Overpass = new Lang.Class({
                 this.outputSortOrder,
                 this.outputCount,
             ]);
-    },
-
-    _convertJSONPlaceToGeocodePlace: function(place) {
-
-        let name = _UNKNOWN;
-        if(place.tags)
-            name = place.tags.name || _UNKNOWN;
-
-        let location = new Geocode.Location({
-            latitude:    place.lat,
-            longitude:   place.lon,
-            accuracy:    0,
-            description: name
-        });
-
-        let geocodePlace = new Geocode.Place({
-            name: name,
-            place_type: Geocode.PlaceType.POINT_OF_INTEREST,
-            // TODO : Add against PlaceType
-            // Create a data structure which return Place Type for
-            // the corresponding place.tags.(amenity | historic | highway ....)
-            // Example : "hospital" => "Place.Type.HOSPITAL"
-            //           "healthcare" => "Place.Type.HOSPITAL"
-            //           "bus_stop" => "Place.Type.BUS_STOP"
-            // Add Bugs against the types not in Geocode
-            location: location,
-            osm_id: place.id.toString()
-        });
-
-        return geocodePlace;
     }
 
 });

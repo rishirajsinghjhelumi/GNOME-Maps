@@ -103,7 +103,29 @@ const MapView = new Lang.Class({
 
         let source = this._factory.create_cached_source(mapType);
         this.view.set_map_source(source);
-        this.view.add_overlay_source(new POIMapSource.POIMapSource(), 255);
+
+        /* POIs */
+        let sourceFactory = Champlain.MapSourceFactory.dup_default();
+        let sourceChain = new Champlain.MapSourceChain();
+
+        let errorSource = sourceFactory.create_error_source(256);
+        sourceChain.push(errorSource);
+
+        let poiMapSource = new POIMapSource.POIMapSource();
+        sourceChain.push(poiMapSource);
+
+        let renderer = poiMapSource.get_renderer();
+        log("rende ::" + renderer);
+
+        // let fileImageRenderer = new Champlain.ImageRenderer();
+        let fileCacheSource = Champlain.FileCache.new_full(100000000, "/home/rocker/maps-cache", renderer);
+        sourceChain.push(fileCacheSource);
+
+        // let memoryImageRenderer = new Champlain.ImageRenderer();
+        // let memoryCacheSource = Champlain.MemoryCache.new_full(100, memoryImageRenderer);
+        // sourceChain.push(memoryCacheSource);
+
+        this.view.add_overlay_source(poiMapSource, 255);
     },
 
     geocodeSearch: function(searchString, searchCompleteCallback) {

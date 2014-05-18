@@ -20,17 +20,14 @@
 
 const Lang = imports.lang;
 
+const Signals = imports.signals;
 const Champlain = imports.gi.Champlain;
-const Geocode = imports.gi.GeocodeGlib;
-const Clutter = imports.gi.Clutter;
-const Cogl = imports.gi.Cogl;
 
 const MapOverlaySource = imports.mapOverlaySource;
 const Utils = imports.utils;
 const Overpass = imports.overpass;
 const GeoMath = imports.geoMath;
-
-const _POI_ICON_SIZE = 20;
+const POIRenderer = imports.poiRenderer;
 
 const POIMapSource = new Lang.Class({
     Name: 'POIMapSource',
@@ -39,9 +36,7 @@ const POIMapSource = new Lang.Class({
     _init: function() {
         this.parent();
 
-        this._poiSelectedCallback = function(place) {
-            log(place.name);
-        };
+        this.renderer = new POIRenderer.POIRenderer();
 
         this.overpassQuery = new Overpass.Overpass({});
         this.overpassQuery.addSearchTag("aeroway", "aerodrome");
@@ -81,53 +76,6 @@ const POIMapSource = new Lang.Class({
         this.overpassQuery.addSearchTag("amenity", "townhall");
     },
 
-    // Maybe this should be in its own render class, a render class that
-    // takes a list of places and render their icons?
-    _render: function(tile) {
-        if (!tile.data)
-            return;
-
-        let places = tile.data;
-        let actor = new Clutter.Actor();
-
-        places.forEach((function(place) {
-            if (!place.icon)
-                return;
-
-            Utils.load_icon(place.icon, _POI_ICON_SIZE, (function(pixbuf) {
-                let image = new Clutter.Image();
-                image.set_data(pixbuf.get_pixels(),
-                               Cogl.PixelFormat.RGBA_8888,
-                               pixbuf.get_width(),
-                               pixbuf.get_height(),
-                               pixbuf.get_rowstride());
-
-                let iconMarker = new Champlain.Marker();
-                iconMarker.connect('notify::selected', (function() {
-                    this._poiSelectedCallback(place);
-                }).bind(this));
-                iconMarker.set_content(image);
-                iconMarker.set_size(pixbuf.get_width(), pixbuf.get_height());
-                let tileLat = GeoMath.tileToLatitude(tile.zoom_level, tile.y);
-                let tileLon = GeoMath.tileToLongitude(tile.zoom_level, tile.x);
-                let location = place.location;
-                let x =
-                    this.get_x(tile.zoom_level, location.longitude) -
-                    this.get_x(tile.zoom_level, tileLon);
-                let y =
-                    this.get_y(tile.zoom_level, location.latitude) -
-                    this.get_y(tile.zoom_level, tileLat);
-                iconMarker.set_position(x, y);
-                actor.add_child(iconMarker);
-            }).bind(this));
-        }).bind(this));
-
-        tile.set_content(actor);
-        tile.set_fade_in(true);
-        tile.set_state(Champlain.State.DONE);
-        tile.display_content();
-    },
-
     vfunc_fill_tile: function(tile) {
 
         if (tile.get_state() === Champlain.State.DONE)
@@ -140,9 +88,16 @@ const POIMapSource = new Lang.Class({
 
         let bbox = GeoMath.bboxFromTile(tile);
         this.overpassQuery.send(bbox, (function(pois){
-            tile.data = pois;
             log("num :: " + pois.length);
-            this._render(tile);
+
+            // tile.emit('render-complete', places, JSON.stringify(places).length, false );
+
+            let data = JSON.stringify(pois);
+            this.renderer.set_data(data, data.length);
+            this.renderer.render(tile);
+
+            tile.display_content();
         }).bind(this));
     }
 });
+Signals.addSignalMethods(POIMapSource.prototype);
