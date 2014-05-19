@@ -37,7 +37,8 @@ const POIMapSource = new Lang.Class({
         this.parent();
 
         this.renderer = new POIRenderer.POIRenderer();
-        this.cache = Champlain.MemoryCache.new_full(5000, this.renderer);
+        // this.cache = Champlain.MemoryCache.new_full(5000, this.renderer);
+        this.cache = Champlain.FileCache.new_full(100000000, null, this.renderer);
 
         this.overpassQuery = new Overpass.Overpass({});
         this.overpassQuery.addSearchTag("aeroway", "aerodrome");
@@ -102,6 +103,7 @@ const POIMapSource = new Lang.Class({
         tile.connect('render-complete', (function(tile, data, size, error){
             tile.display_content();
             this.cache.store_tile(tile, tile.data, tile.data.length);
+            tile.set_state(Champlain.State.DONE);
         }).bind(this));
     }
 });

@@ -54,6 +54,8 @@ const POIRenderer = new Lang.Class({
 
     vfunc_render: function(tile) {
 
+    	tile.set_state(Champlain.State.LOADING);
+
     	if (!this.data)
             return;
 
@@ -99,8 +101,7 @@ const POIRenderer = new Lang.Class({
 
         tile.set_content(actor);
         tile.set_fade_in(true);
-        tile.set_state(Champlain.State.DONE);
-        
+
         // let data = GLib.Bytes.new_take(this.data, this.data.length);
         tile.data = this.data; // Hack
         tile.emit('render-complete', null, this.data.length, false);

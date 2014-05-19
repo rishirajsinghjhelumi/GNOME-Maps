@@ -108,20 +108,18 @@ const MapView = new Lang.Class({
         let sourceFactory = Champlain.MapSourceFactory.dup_default();
         let sourceChain = new Champlain.MapSourceChain();
 
-        let errorSource = sourceFactory.create_error_source(256);
-        sourceChain.push(errorSource);
-
         let poiMapSource = new POIMapSource.POIMapSource();
-        sourceChain.push(poiMapSource);
-
+        let errorSource = sourceFactory.create_error_source(poiMapSource.get_tile_size());
         let renderer = poiMapSource.get_renderer();
-        // let fileCacheSource = Champlain.FileCache.new_full(100000000, "/home/rocker/maps-cache", renderer);
-        // sourceChain.push(fileCacheSource);
-
+        let fileCacheSource = Champlain.FileCache.new_full(100000000, null, renderer);
         let memoryCacheSource = Champlain.MemoryCache.new_full(5000, renderer);
+        
+        sourceChain.push(errorSource);
+        sourceChain.push(poiMapSource);
+        sourceChain.push(fileCacheSource);
         sourceChain.push(memoryCacheSource);
 
-        this.view.add_overlay_source(sourceChain, 255);
+        this.view.add_overlay_source(poiMapSource, 255);
     },
 
     geocodeSearch: function(searchString, searchCompleteCallback) {
