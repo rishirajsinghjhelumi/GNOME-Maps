@@ -101,9 +101,17 @@ const POIMapSource = new Lang.Class({
         }).bind(this));
 
         tile.connect('render-complete', (function(tile, data, size, error){
-            tile.display_content();
-            this.cache.store_tile(tile, tile.data, tile.data.length);
-            tile.set_state(Champlain.State.DONE);
+
+            if(!error){
+                if(this.cache && tile.data){
+                   this.cache.store_tile(tile, tile.data, tile.data.length);
+                }
+                tile.display_content();
+                tile.set_state(Champlain.State.DONE);
+            }
+            else if(this.next_source){
+                this.next_source.fill_tile(tile);
+            }
         }).bind(this));
     }
 });

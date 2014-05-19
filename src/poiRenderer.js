@@ -56,8 +56,10 @@ const POIRenderer = new Lang.Class({
 
     	tile.set_state(Champlain.State.LOADING);
 
-    	if (!this.data)
+    	if (!this.data){
+    		tile.emit('render-complete', null, 0, true);
             return;
+    	}
 
         log(this.size);
         log(this.data.length);

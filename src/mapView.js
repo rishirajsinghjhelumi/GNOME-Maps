@@ -113,13 +113,15 @@ const MapView = new Lang.Class({
         let renderer = poiMapSource.get_renderer();
         let fileCacheSource = Champlain.FileCache.new_full(100000000, null, renderer);
         let memoryCacheSource = Champlain.MemoryCache.new_full(5000, renderer);
-        
+
         sourceChain.push(errorSource);
         sourceChain.push(poiMapSource);
         sourceChain.push(fileCacheSource);
         sourceChain.push(memoryCacheSource);
 
-        this.view.add_overlay_source(poiMapSource, 255);
+        // log(sourceChain);
+
+        this.view.add_overlay_source(sourceChain, 255);
     },
 
     geocodeSearch: function(searchString, searchCompleteCallback) {
