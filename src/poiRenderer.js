@@ -25,6 +25,7 @@ const Champlain = imports.gi.Champlain;
 const Geocode = imports.gi.GeocodeGlib;
 const Clutter = imports.gi.Clutter;
 const Cogl = imports.gi.Cogl;
+const GLib = imports.gi.GLib;
 
 const Utils = imports.utils;
 const GeoMath = imports.geoMath;
@@ -56,7 +57,9 @@ const POIRenderer = new Lang.Class({
     	if (!this.data)
             return;
 
-        let places = JSON.parse(this.data);
+        log(this.size);
+        log(this.data.length);
+        let places = JSON.parse(unescape(this.data));
         for (var i = 0; i < places.length; i++) {
         	places[i] = Overpass.convertJSONPlaceToGeocodePlace(places[i]);
         }
@@ -97,6 +100,10 @@ const POIRenderer = new Lang.Class({
         tile.set_content(actor);
         tile.set_fade_in(true);
         tile.set_state(Champlain.State.DONE);
+        
+        // let data = GLib.Bytes.new_take(this.data, this.data.length);
+        tile.data = this.data; // Hack
+        tile.emit('render-complete', null, this.data.length, false);
     }
 });
 Signals.addSignalMethods(POIRenderer.prototype);

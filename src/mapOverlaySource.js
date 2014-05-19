@@ -32,7 +32,7 @@ const _LICENSE_URI = 'tbd';
 
 const MapOverlaySource = new Lang.Class({
 	Name: 'MapOverlaySource',
-	Extends: Champlain.MapSource,
+	Extends: Champlain.TileSource,
 	Abstract: true,
 
 	_init: function() {

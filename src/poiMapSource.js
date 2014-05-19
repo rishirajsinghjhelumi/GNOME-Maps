@@ -37,6 +37,7 @@ const POIMapSource = new Lang.Class({
         this.parent();
 
         this.renderer = new POIRenderer.POIRenderer();
+        this.cache = Champlain.MemoryCache.new_full(5000, this.renderer);
 
         this.overpassQuery = new Overpass.Overpass({});
         this.overpassQuery.addSearchTag("aeroway", "aerodrome");
@@ -78,6 +79,8 @@ const POIMapSource = new Lang.Class({
 
     vfunc_fill_tile: function(tile) {
 
+        log("zoom ::" + tile.zoom_level);
+
         if (tile.get_state() === Champlain.State.DONE)
             return;
 
@@ -90,13 +93,15 @@ const POIMapSource = new Lang.Class({
         this.overpassQuery.send(bbox, (function(pois){
             log("num :: " + pois.length);
 
-            // tile.emit('render-complete', places, JSON.stringify(places).length, false );
-
-            let data = JSON.stringify(pois);
+            let data = escape(JSON.stringify(pois));
             this.renderer.set_data(data, data.length);
             this.renderer.render(tile);
 
+        }).bind(this));
+
+        tile.connect('render-complete', (function(tile, data, size, error){
             tile.display_content();
+            this.cache.store_tile(tile, tile.data, tile.data.length);
         }).bind(this));
     }
 });

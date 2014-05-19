@@ -115,17 +115,13 @@ const MapView = new Lang.Class({
         sourceChain.push(poiMapSource);
 
         let renderer = poiMapSource.get_renderer();
-        log("rende ::" + renderer);
+        // let fileCacheSource = Champlain.FileCache.new_full(100000000, "/home/rocker/maps-cache", renderer);
+        // sourceChain.push(fileCacheSource);
 
-        // let fileImageRenderer = new Champlain.ImageRenderer();
-        let fileCacheSource = Champlain.FileCache.new_full(100000000, "/home/rocker/maps-cache", renderer);
-        sourceChain.push(fileCacheSource);
+        let memoryCacheSource = Champlain.MemoryCache.new_full(5000, renderer);
+        sourceChain.push(memoryCacheSource);
 
-        // let memoryImageRenderer = new Champlain.ImageRenderer();
-        // let memoryCacheSource = Champlain.MemoryCache.new_full(100, memoryImageRenderer);
-        // sourceChain.push(memoryCacheSource);
-
-        this.view.add_overlay_source(poiMapSource, 255);
+        this.view.add_overlay_source(sourceChain, 255);
     },
 
     geocodeSearch: function(searchString, searchCompleteCallback) {
