@@ -35,7 +35,7 @@ function createCachedSource(){
 
     let renderer = new POIRenderer.POIRenderer();
     let fileCacheSource = Champlain.FileCache.new_full(100000000, null, renderer);
-    let memoryCacheSource = Champlain.MemoryCache.new_full(5000, renderer);
+    let memoryCacheSource = Champlain.MemoryCache.new_full(200, renderer);
 
     let poiMapSource = new POIMapSource(renderer, memoryCacheSource);
 
