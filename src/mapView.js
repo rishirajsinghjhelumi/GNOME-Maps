@@ -105,21 +105,16 @@ const MapView = new Lang.Class({
         this.view.set_map_source(source);
 
         /* POIs */
-        let sourceFactory = Champlain.MapSourceFactory.dup_default();
         let sourceChain = new Champlain.MapSourceChain();
 
         let poiMapSource = new POIMapSource.POIMapSource();
-        let errorSource = sourceFactory.create_error_source(poiMapSource.get_tile_size());
         let renderer = poiMapSource.get_renderer();
         let fileCacheSource = Champlain.FileCache.new_full(100000000, null, renderer);
         let memoryCacheSource = Champlain.MemoryCache.new_full(5000, renderer);
 
-        sourceChain.push(errorSource);
         sourceChain.push(poiMapSource);
         sourceChain.push(fileCacheSource);
         sourceChain.push(memoryCacheSource);
-
-        // log(sourceChain);
 
         this.view.add_overlay_source(sourceChain, 255);
     },
