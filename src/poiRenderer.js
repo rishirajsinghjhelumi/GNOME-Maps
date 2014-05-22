@@ -64,9 +64,8 @@ const POIRenderer = new Lang.Class({
         log(this.size);
         log(this.data.length);
         let places = JSON.parse(unescape(this.data));
-        for (var i = 0; i < places.length; i++) {
-        	places[i] = Overpass.convertJSONPlaceToGeocodePlace(places[i]);
-        }
+        places = places.map(Overpass.convertJSONPlaceToGeocodePlace);
+
         let actor = new Clutter.Actor();
 
         places.forEach((function(place) {
