@@ -29,16 +29,34 @@ const Overpass = imports.overpass;
 const GeoMath = imports.geoMath;
 const POIRenderer = imports.poiRenderer;
 
+function createCachedSource(){
+
+    let sourceChain = new Champlain.MapSourceChain();
+
+    let renderer = new POIRenderer.POIRenderer();
+    let fileCacheSource = Champlain.FileCache.new_full(100000000, null, renderer);
+    let memoryCacheSource = Champlain.MemoryCache.new_full(5000, renderer);
+
+    let poiMapSource = new POIMapSource(renderer, memoryCacheSource);
+
+    sourceChain.push(poiMapSource);
+    sourceChain.push(fileCacheSource);
+    sourceChain.push(memoryCacheSource);
+
+    return sourceChain;
+}
+
 const POIMapSource = new Lang.Class({
     Name: 'POIMapSource',
     Extends: MapOverlaySource.MapOverlaySource,
 
-    _init: function() {
+    _init: function(renderer, cache) {
         this.parent();
 
-        this.renderer = new POIRenderer.POIRenderer();
+        this.renderer = renderer;
+        this.cache = cache;
         // this.cache = Champlain.MemoryCache.new_full(5000, this.renderer);
-        this.cache = Champlain.FileCache.new_full(100000000, null, this.renderer);
+        // this.cache = Champlain.FileCache.new_full(100000000, null, this.renderer);
 
         this.overpassQuery = new Overpass.Overpass({});
         this.overpassQuery.addSearchTag("aeroway", "aerodrome");

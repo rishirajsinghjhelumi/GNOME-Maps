@@ -81,6 +81,8 @@ const MapView = new Lang.Class({
         this._userLocationLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
         this.view.add_layer(this._userLocationLayer);
 
+        this._poiSource = POIMapSource.createCachedSource();
+
         // switching map type will set view min-zoom-level from map source
         this.view.connect('notify::min-zoom-level', (function() {
             if (this.view.min_zoom_level < MapMinZoom) {
@@ -104,19 +106,7 @@ const MapView = new Lang.Class({
         let source = this._factory.create_cached_source(mapType);
         this.view.set_map_source(source);
 
-        /* POIs */
-        let sourceChain = new Champlain.MapSourceChain();
-
-        let poiMapSource = new POIMapSource.POIMapSource();
-        let renderer = poiMapSource.get_renderer();
-        let fileCacheSource = Champlain.FileCache.new_full(100000000, null, renderer);
-        let memoryCacheSource = Champlain.MemoryCache.new_full(5000, renderer);
-
-        sourceChain.push(poiMapSource);
-        sourceChain.push(fileCacheSource);
-        sourceChain.push(memoryCacheSource);
-
-        this.view.add_overlay_source(sourceChain, 255);
+        this.view.add_overlay_source(this._poiSource, 255);
     },
 
     geocodeSearch: function(searchString, searchCompleteCallback) {
