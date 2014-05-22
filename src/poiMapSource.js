@@ -37,7 +37,7 @@ function createCachedSource(){
     let fileCacheSource = Champlain.FileCache.new_full(100000000, null, renderer);
     let memoryCacheSource = Champlain.MemoryCache.new_full(200, renderer);
 
-    let poiMapSource = new POIMapSource(renderer, memoryCacheSource);
+    let poiMapSource = new POIMapSource(renderer);
 
     sourceChain.push(poiMapSource);
     sourceChain.push(fileCacheSource);
@@ -50,13 +50,10 @@ const POIMapSource = new Lang.Class({
     Name: 'POIMapSource',
     Extends: MapOverlaySource.MapOverlaySource,
 
-    _init: function(renderer, cache) {
+    _init: function(renderer) {
         this.parent();
 
         this.renderer = renderer;
-        this.cache = cache;
-        // this.cache = Champlain.MemoryCache.new_full(5000, this.renderer);
-        // this.cache = Champlain.FileCache.new_full(100000000, null, this.renderer);
 
         this.overpassQuery = new Overpass.Overpass({});
         this.overpassQuery.addSearchTag("aeroway", "aerodrome");
