@@ -35,6 +35,38 @@ const _DEFAULT_OUTPUT_SORT_ORDER = 'qt';
 const _UNKNOWN = 'Unknown';
 const BASE_URL = 'http://overpass-api.de/api/interpreter';
 
+const PLACE_KEYS = [
+    'building',
+    'shop',
+    'amenity',
+    'natural',
+    'man_made',
+    'leisure',
+    'historic',
+    'aeroway',
+    'place',
+    'railway',
+    'landuse',
+    'tourism',
+    'waterway',
+    'highway'
+];
+
+function getPlaceType(place) {
+
+    let key = null;
+    let value = null;
+    let rank = null;
+
+    PLACE_KEYS.forEach(function(k){
+        if(k in place.tags)
+            key = k;
+    });
+    value = place.tags[key];
+
+    return Geocode.Place.get_place_type_from_tag(key, value, rank);
+}
+
 function convertJSONPlaceToGeocodePlace(place) {
 
     let name = _UNKNOWN;
@@ -50,7 +82,7 @@ function convertJSONPlaceToGeocodePlace(place) {
 
     let geocodePlace = new Geocode.Place({
         name: name,
-        place_type: Geocode.PlaceType.POINT_OF_INTEREST,
+        place_type: getPlaceType(place),
         // TODO : Add against PlaceType
         // Create a data structure which return Place Type for
         // the corresponding place.tags.(amenity | historic | highway ....)
