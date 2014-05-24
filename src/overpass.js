@@ -83,13 +83,6 @@ function convertJSONPlaceToGeocodePlace(place) {
     let geocodePlace = new Geocode.Place({
         name: name,
         place_type: getPlaceType(place),
-        // TODO : Add against PlaceType
-        // Create a data structure which return Place Type for
-        // the corresponding place.tags.(amenity | historic | highway ....)
-        // Example : "hospital" => "Place.Type.HOSPITAL"
-        //           "healthcare" => "Place.Type.HOSPITAL"
-        //           "bus_stop" => "Place.Type.BUS_STOP"
-        // Add Bugs against the types not in Geocode
         location: location,
         osm_id: place.id.toString()
     });
