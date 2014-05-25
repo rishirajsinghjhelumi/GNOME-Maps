@@ -69,3 +69,16 @@
 #zoom-out-button:insensitive {
     background-image: url('zoom-out-insensitive.png');
 }
+
+.user-location-bubble-title {
+    font-size: 110%;
+    font-weight: bold;
+    /* Does not work */
+    /*padding-bottom: 15px;*/
+}
+
+.user-location-bubble-leftlabel {
+    /* Does not work */
+    /*padding-right: 10px;*/
+    color: gray;
+}

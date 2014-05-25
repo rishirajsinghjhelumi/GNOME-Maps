@@ -8,7 +8,9 @@
     <file>layersPopover.js</file>
     <file>main.js</file>
     <file>mainWindow.js</file>
+    <file>mapBubble.js</file>
     <file>mapLocation.js</file>
+    <file>mapMarker.js</file>
     <file>mapView.js</file>
     <file>notification.js</file>
     <file>notificationManager.js</file>
@@ -18,6 +20,8 @@
     <file>settings.js</file>
     <file>sidebar.js</file>
     <file>userLocation.js</file>
+    <file>userLocationMarker.js</file>
+    <file>userLocationBubble.js</file>
     <file>utils.js</file>
     <file>zoomControl.js</file>
   </gresource>

@@ -38,7 +38,7 @@ const Sidebar = imports.sidebar;
 const Utils = imports.utils;
 const Path = imports.path;
 const MapLocation = imports.mapLocation;
-const UserLocation = imports.userLocation;
+const UserLocationMarker = imports.userLocationMarker;
 const Geoclue = imports.geoclue;
 const _ = imports.gettext.gettext;
 
@@ -145,11 +145,12 @@ const MapView = new Lang.Class({
     },
 
     gotoUserLocation: function(animate) {
-        this.emit('going-to-user-location');
-        this._userLocation.once("gone-to", (function() {
-            this.emit('gone-to-user-location');
-        }).bind(this));
-        this._userLocation.goTo(animate);
+        // TODO error thrown "gone-to" signal does not exists
+        // this.emit('going-to-user-location');
+        // Utils.once(this._userLocation, "gone-to", (function() {
+        //     this.emit('gone-to-user-location');
+        // }).bind(this));
+        // this._userLocation.goTo(animate);
     },
 
     userLocationVisible: function() {
@@ -166,10 +167,13 @@ const MapView = new Lang.Class({
                                                     Geocode.PlaceType.UNKNOWN,
                                                     this.geoclue.location);
 
-        let selected = this._userLocation && this._userLocation.getSelected();
-        this._userLocation = new UserLocation.UserLocation(place, this);
-        this._userLocation.show(this._userLocationLayer);
-        this._userLocation.setSelected(selected);
+        let selected = this._userLocation && this._userLocation.get_selected();
+        this._userLocation = new UserLocationMarker.UserLocationMarker({
+            place: place,
+            mapView: this
+        });
+        this._userLocationLayer.remove_all();
+        this._userLocation.addToLayer(this._userLocationLayer);
         this.emit('user-location-changed');
     },
 

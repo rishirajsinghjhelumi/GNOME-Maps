@@ -17,7 +17,8 @@ imagesdir = $(datadir)/gnome-maps/pixmaps
 images_DATA =                                   \
 	bubble.svg				\
 	pin.svg					\
-        $(NULL)
+	user-location.png		\
+	$(NULL)
 
 noinst_DATA =					\
 	gnome-maps.svg				\
