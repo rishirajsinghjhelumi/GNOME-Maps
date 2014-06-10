@@ -13,6 +13,20 @@ public_icons =					\
 	hicolor_apps_256x256_gnome-maps.png	\
 	$(NULL)
 
+poi_icons = \
+	maki/scalable_places_poi-airport.svg \
+	maki/scalable_places_poi-building.svg \
+	maki/scalable_places_poi-bus-stop.svg \
+	maki/scalable_places_poi-car.svg \
+	maki/scalable_places_poi-marker.svg \
+	maki/scalable_places_poi-railway-station.svg \
+	maki/scalable_places_poi-town.svg \
+	maki/scalable_places_poi-school.svg \
+	maki/scalable_places_poi-place-of-worship.svg \
+	maki/scalable_places_poi-restaurant.svg \
+	maki/scalable_places_poi-bar.svg \
+	maki/scalable_places_poi-airport.svg
+
 imagesdir = $(datadir)/gnome-maps/pixmaps
 images_DATA =                                   \
 	bubble.svg				\
