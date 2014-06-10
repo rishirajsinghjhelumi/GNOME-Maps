@@ -35,61 +35,6 @@ const _DEFAULT_OUTPUT_SORT_ORDER = 'qt';
 const _UNKNOWN = 'Unknown';
 const BASE_URL = 'http://overpass-api.de/api/interpreter';
 
-const PLACE_KEYS = [
-    'building',
-    'shop',
-    'amenity',
-    'natural',
-    'man_made',
-    'leisure',
-    'historic',
-    'aeroway',
-    'place',
-    'railway',
-    'landuse',
-    'tourism',
-    'waterway',
-    'highway'
-];
-
-function getPlaceType(place) {
-
-    let key = null;
-    let value = null;
-    let rank = null;
-
-    PLACE_KEYS.forEach(function(k){
-        if(k in place.tags)
-            key = k;
-    });
-    value = place.tags[key];
-
-    return Geocode.Place.get_place_type_from_tag(key, value, rank);
-}
-
-function convertJSONPlaceToGeocodePlace(place) {
-
-    let name = _UNKNOWN;
-    if(place.tags)
-        name = place.tags.name || _UNKNOWN;
-
-    let location = new Geocode.Location({
-        latitude:    place.lat,
-        longitude:   place.lon,
-        accuracy:    0,
-        description: name
-    });
-
-    let geocodePlace = new Geocode.Place({
-        name: name,
-        place_type: getPlaceType(place),
-        location: location,
-        osm_id: place.id.toString()
-    });
-
-    return geocodePlace;
-}
-
 const Overpass = new Lang.Class({
     Name: 'Overpass',
 

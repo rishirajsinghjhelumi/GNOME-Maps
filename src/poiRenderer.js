@@ -30,6 +30,7 @@ const GLib = imports.gi.GLib;
 const Utils = imports.utils;
 const GeoMath = imports.geoMath;
 const Overpass = imports.overpass;
+const POI = imports.poi;
 const MapOverlaySource = imports.mapOverlaySource;
 
 const _POI_ICON_SIZE = 20;
@@ -64,7 +65,7 @@ const POIRenderer = new Lang.Class({
         log(this.size);
         log(this.data.length);
         let places = JSON.parse(unescape(this.data));
-        places = places.map(Overpass.convertJSONPlaceToGeocodePlace);
+        places = places.map(POI.convertJSONPlaceToPOI);
 
         let actor = new Clutter.Actor();
 

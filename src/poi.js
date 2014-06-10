@@ -26,7 +26,11 @@ const Geocode = imports.gi.GeocodeGlib;
 
 const Place = imports.place;
 
-let places = {
+const _UNKNOWN = 'Unknown';
+
+const _POI_DEFAULT_ICON = 'poi-default';
+const poiTypes = {
+
 	'building' : {
 
 	},
@@ -74,12 +78,59 @@ let places = {
 	}
 };
 
+function getPOIIconFromTag(key, value) {
+	return poiTypes[key][value] || _POI_DEFAULT_ICON;
+}
+
+function getPOITypeFromPlaceJSON(place) {
+
+	let key = null;
+    let value = null;
+
+    let k = null;
+	for(k in poiTypes) {
+		if(k in place.tags)
+			key = k;
+	}
+    value = place.tags[key];
+
+    return Geocode.Place.get_place_type_from_tag(key, value, null);
+    // return getPOIIconFromTag(key, value);
+}
+
+function convertJSONPlaceToPOI(place) {
+
+    let name = _UNKNOWN;
+    if(place.tags)
+        name = place.tags.name || _UNKNOWN;
+
+    let location = new Geocode.Location({
+        latitude:    place.lat,
+        longitude:   place.lon,
+        accuracy:    0,
+        description: name
+    });
+
+    let poi = new POI({
+        name: name,
+        place_type: getPOITypeFromPlaceJSON(place),
+        location: location,
+        osm_id: place.id.toString()
+    });
+
+    return poi;
+}
+
 const POI = new Lang.Class({
 	Name: 'POI',
 	Extends: Place.Place,
 
 	_init: function(params) {
+
+		this._type = params.type;
+		delete params.type;
+
 		this.parent(params);
 	}
 });
-Signals.addSignalMethods(Place.prototype);
+Signals.addSignalMethods(POI.prototype);
