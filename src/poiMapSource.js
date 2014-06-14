@@ -29,13 +29,17 @@ const Overpass = imports.overpass;
 const GeoMath = imports.geoMath;
 const POIRenderer = imports.poiRenderer;
 
+const _FILE_CACHE_NUM = 1e9;
+const _MEMORY_CACHE_NUM = 200;
+const _MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
+
 function createCachedSource(){
 
     let sourceChain = new Champlain.MapSourceChain();
 
     let renderer = new POIRenderer.POIRenderer();
-    let fileCacheSource = Champlain.FileCache.new_full(100000000, null, renderer);
-    let memoryCacheSource = Champlain.MemoryCache.new_full(200, renderer);
+    let fileCacheSource = Champlain.FileCache.new_full(_FILE_CACHE_NUM, null, renderer);
+    let memoryCacheSource = Champlain.MemoryCache.new_full(_MEMORY_CACHE_NUM, renderer);
 
     let poiMapSource = new POIMapSource(renderer);
 
@@ -98,7 +102,7 @@ const POIMapSource = new Lang.Class({
         if (tile.get_state() === Champlain.State.DONE)
             return;
 
-        if (tile.zoom_level < 15) {
+        if (tile.zoom_level < _MIN_POI_DISPLAY_ZOOM_LEVEL) {
             tile.set_state(Champlain.State.DONE);
             return;
         }
