@@ -36,5 +36,6 @@ const Place = new Lang.Class({
 		let icon = this.parent();
 		return icon;
 	}
+	
 });
 Signals.addSignalMethods(Place.prototype);

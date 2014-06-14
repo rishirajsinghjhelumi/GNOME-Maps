@@ -16,8 +16,7 @@ poi_icons = \
 	scalable_places_poi-place-of-worship.svg \
 	scalable_places_poi-restaurant.svg \
 	scalable_places_poi-bar.svg \
-	scalable_places_poi-airport.svg \
-	scalable_places_poi-temp.svg
+	scalable_places_poi-airport.svg
 
 public_icons =					\
 	hicolor_apps_16x16_gnome-maps.png	\
@@ -72,7 +71,7 @@ install-icons:
 		$(INSTALL_DATA) $(srcdir)/$$icon $(DESTDIR)$(datadir)/icons/$$THEME/$$SIZE/$$CONTEXT/$$ICONFILE; \
 	done
 
-	-for icon in $(poi_icons); do \
+	for icon in $(poi_icons); do \
 		ICON=`echo $$icon | sed -e 's:_:/:g'`; \
 		ICONDIR=`dirname $$ICON`; \
 		mkdir -p $(DESTDIR)$(datadir)/icons/gnome/$$ICONDIR; \

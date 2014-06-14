@@ -29,7 +29,7 @@ const Place = imports.place;
 
 const _UNKNOWN = 'Unknown';
 
-const _POI_DEFAULT_ICON = 'poi-default';
+const _POI_DEFAULT_ICON = 'poi-marker';
 const poiTypes = {
 
 	'building' : {
@@ -42,7 +42,8 @@ const poiTypes = {
 		'school' : 'poi-school',
 		'place_of_worship' : 'poi-place-of-worship',
 		'bar' : 'poi-bar',
-		'pub' : 'poi-bar'
+		'pub' : 'poi-bar',
+		'restaurant' : 'poi-restaurant',
 	},
 	'natural' : {
 
@@ -57,13 +58,17 @@ const poiTypes = {
 
 	},
 	'aeroway' : {
-
+		'aerodrome' : 'poi-airport',
 	},
 	'place' : {
-
+		'house' : 'poi-building',
+		'building' : 'poi-building',
+		'residential' : 'poi-building',
+		'plaza' : 'poi-building',
+		'office' : 'poi-building',
 	},
 	'railway' : {
-
+		'station' : 'poi-railway-station',
 	},
 	'landuse' : {
 
@@ -75,7 +80,7 @@ const poiTypes = {
 
 	},
 	'highway' : {
-
+		'bus_stop' : 'poi-bus-stop',
 	}
 };
 
@@ -95,8 +100,7 @@ function getPOITypeFromPlaceJSON(place) {
 	}
     value = place.tags[key];
 
-    return Geocode.Place.get_place_type_from_tag(key, value, null);
-    // return getPOIIconFromTag(key, value);
+    return getPOIIconFromTag(key, value);
 }
 
 function convertJSONPlaceToPOI(place) {
@@ -114,9 +118,10 @@ function convertJSONPlaceToPOI(place) {
 
     let poi = new POI({
         name: name,
-        place_type: getPOITypeFromPlaceJSON(place),
+        place_type: Geocode.PlaceType.POINT_OF_INTEREST,
         location: location,
         osm_id: place.id.toString(),
+        type: getPOITypeFromPlaceJSON(place)
     });
 
     return poi;
@@ -135,11 +140,9 @@ const POI = new Lang.Class({
 	},
 
 	get_icon: function() {
-		let icon = this.parent();
-		let themedIcon = Gio.ThemedIcon.new("poi-temp");
-		log(themedIcon);
-		// this.icon = themedIcon;
-		return themedIcon;
+		
+		let icon = Gio.ThemedIcon.new(this._type);
+		return icon;
 	},
 
 	get place_type() {
