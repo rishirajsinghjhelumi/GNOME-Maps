@@ -1,6 +1,6 @@
 # This file is processed by autoconf to create a configure script
 AC_INIT([gnome-maps],
-        [3.13.0],
+        [3.13.2],
         [https://bugzilla.gnome.org/enter_bug.cgi?product=gnome-maps],
         [gnome-maps])
 
@@ -51,7 +51,7 @@ AC_CONFIG_FILES([
     Makefile
     src/Makefile
     data/Makefile
-    data/gnome-maps.desktop.in
+    data/org.gnome.Maps.desktop.in
     data/icons/Makefile
     po/Makefile.in
 ])

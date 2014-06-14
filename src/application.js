@@ -36,6 +36,7 @@ const Main = imports.main;
 const Format = imports.format;
 const MainWindow = imports.mainWindow;
 const Notification = imports.notification;
+const NotificationManager = imports.notificationManager;
 const Utils = imports.utils;
 const Path = imports.path;
 const Settings = imports.settings;
@@ -108,9 +109,18 @@ const Application = new Lang.Class({
             return;
 
         let overlay = new Gtk.Overlay({ visible: true, can_focus: true });
-        notificationManager = new Notification.Manager(overlay);
+        notificationManager = new NotificationManager.NotificationManager(overlay);
         this._mainWindow = new MainWindow.MainWindow(this, overlay);
         this._mainWindow.window.connect('destroy', this._onWindowDestroy.bind(this));
+    },
+
+    vfunc_dbus_register: function(connection, path) {
+        this.parent(connection, path);
+        return true;
+    },
+
+    vfunc_dbus_unregister: function(connection, path) {
+        this.parent(connection, path);
     },
 
     vfunc_activate: function() {

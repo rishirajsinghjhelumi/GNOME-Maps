@@ -64,7 +64,7 @@ const AccuracyLevel = {
     CITY: 4,
     NEIGHBORHOOD: 5,
     STREET: 6,
-    EXACT: 8,
+    EXACT: 8
 };
 
 const LocationInterface = '<node> \
@@ -79,9 +79,21 @@ const LocationProxy = Gio.DBusProxy.makeProxyWrapper(LocationInterface);
 
 const Geoclue = new Lang.Class({
     Name: 'Geoclue',
+    Extends: GObject.Object,
+    Properties: {
+        'connected': GObject.ParamSpec.boolean('connected',
+                                               'Connected',
+                                               'Connected to DBus service',
+                                               GObject.ParamFlags.READABLE,
+                                               false)
+    },
+
+    get connected() {
+        return this._connected;
+    },
 
     overrideLocation: function(location) {
-        if (this._locationUpdatedId > 0) {
+        if (this._clientProxy && this._locationUpdatedId > 0) {
             this._clientProxy.disconnectSignal(this._locationUpdatedId);
             this._locationUpdatedId = 0;
             this._clientProxy.StopRemote(function(result, e) {
@@ -95,6 +107,9 @@ const Geoclue = new Lang.Class({
     },
 
     findLocation: function() {
+        if (!this._clientProxy)
+            return;
+
         this._locationUpdatedId =
             this._clientProxy.connectSignal("LocationUpdated",
                                             this._onLocationUpdated.bind(this));
@@ -107,6 +122,9 @@ const Geoclue = new Lang.Class({
     },
 
     _init: function() {
+        this.parent();
+        this._connected = false;
+
         let lastLocation = Application.settings.get('last-location');
         if (lastLocation.length >= 3) {
             let [lat, lng, accuracy] = lastLocation;
@@ -118,11 +136,15 @@ const Geoclue = new Lang.Class({
             this.userSetLocation = Application.settings.get('last-location-user-set');
         }
 
-        this._managerProxy = new ManagerProxy(Gio.DBus.system,
-                                              "org.freedesktop.GeoClue2",
-                                              "/org/freedesktop/GeoClue2/Manager");
-
-        this._managerProxy.GetClientRemote(this._onGetClientReady.bind(this));
+        try {
+            this._managerProxy = new ManagerProxy(Gio.DBus.system,
+                                                  "org.freedesktop.GeoClue2",
+                                                  "/org/freedesktop/GeoClue2/Manager");
+            this._managerProxy.GetClientRemote(this._onGetClientReady.bind(this));
+        } catch (e) {
+            Utils.debug("Failed to connect to GeoClue2 service: " + e.message);
+            log('Connection with GeoClue failed, we are not able to find your location!');
+        }
     },
 
     _onGetClientReady: function(result, e) {
@@ -141,6 +163,9 @@ const Geoclue = new Lang.Class({
 
         if (!this.userSetLocation)
             this.findLocation();
+
+        this._connected = true;
+        this.notify('connected');
     },
 
     _onLocationUpdated: function(proxy, sender, [oldPath, newPath]) {
@@ -160,7 +185,8 @@ const Geoclue = new Lang.Class({
         Application.settings.set('last-location', [location.latitude,
                                                    location.longitude,
                                                    location.accuracy]);
-        Application.settings.set('last-location-description', location.description);
+        if (location.description !== null)
+            Application.settings.set('last-location-description', location.description);
         Application.settings.set('last-location-user-set', userSet);
         this.userSetLocation = userSet;
 

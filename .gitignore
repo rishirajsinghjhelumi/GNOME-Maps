@@ -17,9 +17,9 @@ missing
 .deps/
 *.o
 
-data/gnome-maps.appdata.xml
-data/gnome-maps.desktop
-data/gnome-maps.desktop.in
+data/org.gnome.Maps.appdata.xml
+data/org.gnome.Maps.desktop
+data/org.gnome.Maps.desktop.in
 data/org.gnome.maps.gschema.valid
 data/org.gnome.maps.gschema.xml
 
