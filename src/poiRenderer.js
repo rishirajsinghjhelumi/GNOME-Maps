@@ -62,8 +62,6 @@ const POIRenderer = new Lang.Class({
             return;
     	}
 
-        log(this.size);
-        log(this.data.length);
         let places = JSON.parse(unescape(this.data));
         places = places.map(POI.convertJSONPlaceToPOI);
 
@@ -104,7 +102,6 @@ const POIRenderer = new Lang.Class({
         tile.set_content(actor);
         tile.set_fade_in(true);
 
-        // let data = GLib.Bytes.new_take(this.data, this.data.length);
         tile.data = this.data; // Hack
         tile.emit('render-complete', null, this.data.length, false);
     }

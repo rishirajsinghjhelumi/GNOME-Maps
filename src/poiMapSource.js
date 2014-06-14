@@ -95,8 +95,6 @@ const POIMapSource = new Lang.Class({
 
     vfunc_fill_tile: function(tile) {
 
-        log("zoom ::" + tile.zoom_level);
-
         if (tile.get_state() === Champlain.State.DONE)
             return;
 
@@ -127,6 +125,7 @@ const POIMapSource = new Lang.Class({
             else if(this.next_source){
                 this.next_source.fill_tile(tile);
             }
+
         }).bind(this));
     }
 });
