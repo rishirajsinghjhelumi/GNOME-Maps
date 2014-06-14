@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.gnome.Maps
+Exec=/opt/gnome/bin/gnome-maps --gapplication-service

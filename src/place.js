@@ -30,6 +30,11 @@ const Place = new Lang.Class({
 
 	_init: function(params) {
 		this.parent(params);
+	},
+
+	get_icon: function() {
+		let icon = this.parent();
+		return icon;
 	}
 });
 Signals.addSignalMethods(Place.prototype);

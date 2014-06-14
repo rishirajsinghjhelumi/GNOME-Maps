@@ -23,6 +23,7 @@ const Lang = imports.lang;
 const Signals = imports.signals;
 const Champlain = imports.gi.Champlain;
 const Geocode = imports.gi.GeocodeGlib;
+const Gio = imports.gi.Gio;
 
 const Place = imports.place;
 
@@ -115,7 +116,7 @@ function convertJSONPlaceToPOI(place) {
         name: name,
         place_type: getPOITypeFromPlaceJSON(place),
         location: location,
-        osm_id: place.id.toString()
+        osm_id: place.id.toString(),
     });
 
     return poi;
@@ -131,6 +132,22 @@ const POI = new Lang.Class({
 		delete params.type;
 
 		this.parent(params);
+	},
+
+	get_icon: function() {
+		let icon = this.parent();
+		let themedIcon = Gio.ThemedIcon.new("poi-temp");
+		log(themedIcon);
+		// this.icon = themedIcon;
+		return themedIcon;
+	},
+
+	get place_type() {
+		return this._place_type;
+	},
+
+	set place_type(value) {
+		this._place_type = value;
 	}
 });
 Signals.addSignalMethods(POI.prototype);

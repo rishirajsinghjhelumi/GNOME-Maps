@@ -73,7 +73,7 @@ const POIRenderer = new Lang.Class({
             if (!place.icon)
                 return;
 
-            Utils.load_icon(place.icon, _POI_ICON_SIZE, (function(pixbuf) {
+            Utils.load_icon(place.get_icon(), _POI_ICON_SIZE, (function(pixbuf) {
                 let image = new Clutter.Image();
                 image.set_data(pixbuf.get_pixels(),
                                Cogl.PixelFormat.RGBA_8888,
