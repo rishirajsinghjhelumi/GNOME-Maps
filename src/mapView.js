@@ -40,6 +40,7 @@ const Path = imports.path;
 const MapLocation = imports.mapLocation;
 const UserLocation = imports.userLocation;
 const Geoclue = imports.geoclue;
+const POIMapSource = imports.poiMapSource;
 const _ = imports.gettext.gettext;
 
 const MapType = {
@@ -80,6 +81,8 @@ const MapView = new Lang.Class({
         this._userLocationLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
         this.view.add_layer(this._userLocationLayer);
 
+        this._poiSource = POIMapSource.createCachedSource();
+
         // switching map type will set view min-zoom-level from map source
         this.view.connect('notify::min-zoom-level', (function() {
             if (this.view.min_zoom_level < MapMinZoom) {
@@ -89,7 +92,6 @@ const MapView = new Lang.Class({
 
         this._factory = Champlain.MapSourceFactory.dup_default();
         this.setMapType(MapType.STREET);
-
 
         this.geoclue = new Geoclue.Geoclue();
         this._updateUserLocation();
@@ -103,6 +105,8 @@ const MapView = new Lang.Class({
 
         let source = this._factory.create_cached_source(mapType);
         this.view.set_map_source(source);
+
+        this.view.add_overlay_source(this._poiSource, 255);
     },
 
     geocodeSearch: function(searchString, searchCompleteCallback) {
