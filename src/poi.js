@@ -44,6 +44,17 @@ const poiTypes = {
 		'bar' : 'poi-bar',
 		'pub' : 'poi-bar',
 		'restaurant' : 'poi-restaurant',
+		'fast_food' : 'poi-fast-food',
+		'bank' : 'poi-bank',
+		'atm' : 'poi-bank',
+		'clinic' : 'poi-hospital',
+		'hospital' : 'poi-hospital',
+		'ferry_terminal' : 'poi-ferry',
+		'hotel' : 'poi-lodging',
+		'library' : 'poi-library',
+		'park' : 'poi-park',
+		'police' : 'poi-police',
+		'theatre' : 'poi-theatre',
 	},
 	'natural' : {
 
@@ -52,10 +63,10 @@ const poiTypes = {
 
 	},
 	'leisure' : {
-
+		'garden' : 'poi-park',
 	},
 	'historic' : {
-
+		'museum' : 'poi-museum',
 	},
 	'aeroway' : {
 		'aerodrome' : 'poi-airport',
@@ -69,12 +80,17 @@ const poiTypes = {
 	},
 	'railway' : {
 		'station' : 'poi-railway-station',
+		'subway_entrance' : 'poi-railway-station',
+		'subway' : 'poi-railway-station',
+		'halt' : 'poi-railway-station',
+		'tram_stop': 'poi-railway-station',
 	},
 	'landuse' : {
 
 	},
 	'tourism' : {
-
+		'bed_and_breakfast' : 'poi-restaurant',
+		'hostel' : 'poi-lodging',
 	},
 	'waterway' : {
 

@@ -16,7 +16,16 @@ poi_icons = \
 	scalable_places_poi-place-of-worship.svg \
 	scalable_places_poi-restaurant.svg \
 	scalable_places_poi-bar.svg \
-	scalable_places_poi-airport.svg
+	scalable_places_poi-bank.svg \
+	scalable_places_poi-fast-food.svg \
+	scalable_places_poi-hospital.svg \
+	scalable_places_poi-ferry.svg \
+	scalable_places_poi-lodging.svg \
+	scalable_places_poi-library.svg \
+	scalable_places_poi-park.svg \
+	scalable_places_poi-police.svg \
+	scalable_places_poi-theatre.svg \
+	scalable_places_poi-museum.svg
 
 public_icons =					\
 	hicolor_apps_16x16_gnome-maps.png	\
