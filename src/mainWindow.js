@@ -63,7 +63,7 @@ const MainWindow = new Lang.Class({
 
         ui.appWindow.add(this._overlay);
 
-        this.mapView = new MapView.MapView();
+        this.mapView = Application.mapView;
         overlay.add(this.mapView);
 
         this.mapView.gotoUserLocation(false);

@@ -40,12 +40,14 @@ const Utils = imports.utils;
 const Path = imports.path;
 const Settings = imports.settings;
 const PlaceStore = imports.placeStore;
+const MapView = imports.mapView;
 
 // used globally
 let application = null;
 let settings = null;
 let placeStore = null;
 let notificationManager = null;
+let mapView = null;
 
 const Application = new Lang.Class({
     Name: 'Application',
@@ -63,6 +65,10 @@ const Application = new Lang.Class({
 
     _onQuitActivate: function() {
         this._mainWindow.window.destroy();
+    },
+
+    _initMapView: function() {
+        mapView = new MapView.MapView();
     },
 
     _initPlaceStore: function() {
@@ -99,6 +105,7 @@ const Application = new Lang.Class({
             signalHandlers: { activate: this._onQuitActivate }
         }], this);
 
+        this._initMapView();
         this._initPlaceStore();
         this._initAppMenu();
     },
