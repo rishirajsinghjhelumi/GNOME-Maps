@@ -26,6 +26,7 @@ const Geocode = imports.gi.GeocodeGlib;
 const Clutter = imports.gi.Clutter;
 const Cogl = imports.gi.Cogl;
 const GLib = imports.gi.GLib;
+const Gio = imports.gi.Gio;
 
 const Utils = imports.utils;
 const GeoMath = imports.geoMath;
@@ -67,6 +68,17 @@ const POIRenderer = new Lang.Class({
 
         let actor = new Clutter.Actor();
 
+        this._poiOuterCircleImage = null;
+        Utils.load_icon(Gio.ThemedIcon.new('poi-circle-red'), _POI_ICON_SIZE, (function(pixbuf) {
+            let image = new Clutter.Image();
+            image.set_data(pixbuf.get_pixels(),
+                           Cogl.PixelFormat.RGBA_8888,
+                           pixbuf.get_width(),
+                           pixbuf.get_height(),
+                           pixbuf.get_rowstride());
+            this._poiOuterCircleImage = image;
+        }).bind(this));
+
         places.forEach((function(place) {
             if (!place.icon)
                 return;
@@ -95,7 +107,16 @@ const POIRenderer = new Lang.Class({
                     this._mapOverlaySource.get_y(tile.zoom_level, location.latitude) -
                     this._mapOverlaySource.get_y(tile.zoom_level, tileLat);
                 iconMarker.set_position(x, y);
+
+                // Add Outer Circle
+                let outerCircleIconMarker = new Champlain.Marker();
+                outerCircleIconMarker.set_content(this._poiOuterCircleImage);
+                outerCircleIconMarker.set_size(pixbuf.get_width() + 10, pixbuf.get_height() + 10);
+                outerCircleIconMarker.set_position(x - 5, y - 5);
+                actor.add_child(outerCircleIconMarker);
+
                 actor.add_child(iconMarker);
+
             }).bind(this));
         }).bind(this));
 

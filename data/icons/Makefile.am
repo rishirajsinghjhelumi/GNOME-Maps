@@ -25,7 +25,8 @@ poi_icons = \
 	scalable_places_poi-park.svg \
 	scalable_places_poi-police.svg \
 	scalable_places_poi-theatre.svg \
-	scalable_places_poi-museum.svg
+	scalable_places_poi-museum.svg \
+	scalable_places_poi-circle-red.svg
 
 public_icons =					\
 	hicolor_apps_16x16_gnome-maps.png	\
