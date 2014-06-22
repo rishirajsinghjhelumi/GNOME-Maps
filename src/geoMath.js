@@ -25,7 +25,7 @@ Math.sinH = function(arg) {
 }
 
 Math.sec = function(arg) {
-	return (1.0 / Math.cos(arg));
+    return (1.0 / Math.cos(arg));
 }
 
 function tileToLatitude(zoom, y) {
@@ -40,21 +40,21 @@ function tileToLongitude(zoom, x) {
 }
 
 function longitudeToTile(longitude, zoom) {
-	let n = (1 << zoom) * 1.0;
-	return Math.floor( (longitude + 180.0) / 360.0 * n);
+    let n = (1 << zoom) * 1.0;
+    return Math.floor( (longitude + 180.0) / 360.0 * n);
 }
 
 function latitudeToTile(latitude, zoom) {
-	let n = (1 << zoom) * 1.0;
-	let latRad = latitude * Math.PI / 180.0;
-	return Math.floor( ( 1 - Math.log( Math.tan(latRad) + Math.sec(latRad) ) / Math.PI ) * 0.5 * n);
+    let n = (1 << zoom) * 1.0;
+    let latRad = latitude * Math.PI / 180.0;
+    return Math.floor( ( 1 - Math.log( Math.tan(latRad) + Math.sec(latRad) ) / Math.PI ) * 0.5 * n);
 }
 
 function bboxFromTile(tile) {
-	return new Champlain.BoundingBox({
-		top: tileToLatitude(tile.zoom_level, tile.y),
-		left: tileToLongitude(tile.zoom_level, tile.x),
-		bottom: tileToLatitude(tile.zoom_level, tile.y + 1),
-		right: tileToLongitude(tile.zoom_level, tile.x + 1)
-	});
+    return new Champlain.BoundingBox({
+        top: tileToLatitude(tile.zoom_level, tile.y),
+        left: tileToLongitude(tile.zoom_level, tile.x),
+        bottom: tileToLatitude(tile.zoom_level, tile.y + 1),
+        right: tileToLongitude(tile.zoom_level, tile.x + 1)
+    });
 }
