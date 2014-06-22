@@ -37,6 +37,7 @@ const Application = imports.application;
 const Utils = imports.utils;
 const Path = imports.path;
 const MapLocation = imports.mapLocation;
+const MapWalker = imports.mapWalker;
 const UserLocation = imports.userLocation;
 const _ = imports.gettext.gettext;
 
@@ -179,9 +180,6 @@ const MapView = new Lang.Class({
 
         route.path.forEach(this._routeLayer.add_node.bind(this._routeLayer));
 
-        // Animate to the center of the route bounding box
-        // goto() is currently implemented on mapLocation, so we need to go
-        // through some hoops here.
         let [lat, lon] = route.bbox.get_center();
         let place = new Geocode.Place({
             location     : new Geocode.Location({ latitude  : lat,
@@ -191,9 +189,8 @@ const MapView = new Lang.Class({
                                                      left   : route.bbox.left,
                                                      right  : route.bbox.right })
         });
-        let mapLocation = new MapLocation.MapLocation(place, this);
 
-        mapLocation.goTo(true);
+        new MapWalker.MapWalker(place, this).goTo(true);
     },
 
     _onViewMoved: function() {
