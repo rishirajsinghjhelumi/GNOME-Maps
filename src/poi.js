@@ -157,7 +157,9 @@ const POI = new Lang.Class({
 
 	get_icon: function() {
 		
-		let icon = Gio.ThemedIcon.new(this._type);
+		let icon = new Gio.ThemedIcon({
+			name: this._type,
+		});
 		return icon;
 	},
 
