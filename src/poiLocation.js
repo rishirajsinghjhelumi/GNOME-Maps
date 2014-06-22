@@ -40,10 +40,12 @@ const POILocation = new Lang.Class({
         this._mapView = Application.mapView;
         this._poiLayer = this._mapView.poiLayer;
         this._place = place;
+	},
 
-        this._poiSelectedCallback = function(place) {
-            log(place.name);
-        };
+	_poiSelectedCallback: function(place) {
+
+		// Add popover code for POI here
+		log(place.name);
 	},
 
 	show: function() {
