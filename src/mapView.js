@@ -81,6 +81,10 @@ const MapView = new Lang.Class({
         this._userLocationLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
         this.view.add_layer(this._userLocationLayer);
 
+        this.poiLayer = new Champlain.MarkerLayer();
+        this.poiLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
+        this.view.add_layer(this.poiLayer);
+
         this._poiSource = POIMapSource.createCachedSource();
 
         // switching map type will set view min-zoom-level from map source

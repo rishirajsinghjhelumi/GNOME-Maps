@@ -18,6 +18,7 @@
     <file>place.js</file>
     <file>placeStore.js</file>
     <file>poi.js</file>
+    <file>poiLocation.js</file>
     <file>poiMapSource.js</file>
     <file>poiRenderer.js</file>
     <file>searchPopup.js</file>
