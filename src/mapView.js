@@ -51,6 +51,7 @@ const MapType = {
 };
 
 const MapMinZoom = 2;
+const _MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
 
 const MapView = new Lang.Class({
     Name: 'MapView',
@@ -84,6 +85,15 @@ const MapView = new Lang.Class({
         this.poiLayer = new Champlain.MarkerLayer();
         this.poiLayer.set_selection_mode(Champlain.SelectionMode.MULTIPLE);
         this.view.add_layer(this.poiLayer);
+
+        this.view.connect('notify::zoom-level', (function() {
+            if(this.view.zoom_level < _MIN_POI_DISPLAY_ZOOM_LEVEL) {
+                this.poiLayer.hide_all_markers();
+            }
+            else {
+                this.poiLayer.show_all_markers();
+            }
+        }).bind(this));
 
         this._poiSource = POIMapSource.createCachedSource();
 
