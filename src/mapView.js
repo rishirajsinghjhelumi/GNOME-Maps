@@ -88,7 +88,7 @@ const MapView = new Lang.Class({
 
         this.view.connect('notify::zoom-level', (function() {
             if(this.view.zoom_level < _MIN_POI_DISPLAY_ZOOM_LEVEL) {
-                this.poiLayer.hide_all_markers();
+                this.poiLayer.remove_all();
             }
             else {
                 this.poiLayer.show_all_markers();
