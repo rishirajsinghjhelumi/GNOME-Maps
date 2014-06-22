@@ -82,7 +82,7 @@ const MapView = new Lang.Class({
         this.view.add_layer(this._userLocationLayer);
 
         this.poiLayer = new Champlain.MarkerLayer();
-        this.poiLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
+        this.poiLayer.set_selection_mode(Champlain.SelectionMode.MULTIPLE);
         this.view.add_layer(this.poiLayer);
 
         this._poiSource = POIMapSource.createCachedSource();
