@@ -51,6 +51,17 @@ const POILocation = new Lang.Class({
 
 	show: function() {
 
+		// this._poiOuterCircleImage = null;
+  //       Utils.load_icon(Gio.ThemedIcon.new('poi-circle-red'), _POI_ICON_SIZE, (function(pixbuf) {
+  //           let image = new Clutter.Image();
+  //           image.set_data(pixbuf.get_pixels(),
+  //                          Cogl.PixelFormat.RGBA_8888,
+  //                          pixbuf.get_width(),
+  //                          pixbuf.get_height(),
+  //                          pixbuf.get_rowstride());
+  //           this._poiOuterCircleImage = image;
+  //       }).bind(this));
+
 		Utils.load_icon(this._place.get_icon(), _POI_ICON_SIZE, (function(pixbuf) {
             let image = new Clutter.Image();
             image.set_data(pixbuf.get_pixels(),

@@ -33,7 +33,7 @@ const _FILE_CACHE_NUM = 1e9;
 const _MEMORY_CACHE_NUM = 200;
 const _MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
 
-function createCachedSource(){
+function createCachedSource() {
 
     let sourceChain = new Champlain.MapSourceChain();
 
@@ -108,8 +108,7 @@ const POIMapSource = new Lang.Class({
         }
 
         let bbox = GeoMath.bboxFromTile(tile);
-        this.overpassQuery.send(bbox, (function(pois){
-            log("num :: " + pois.length);
+        this.overpassQuery.send(bbox, (function(pois) {
 
             let data = escape(JSON.stringify(pois));
             this.renderer.set_data(data, data.length);
@@ -117,13 +116,12 @@ const POIMapSource = new Lang.Class({
 
         }).bind(this));
 
-        tile.connect('render-complete', (function(tile, data, size, error){
+        tile.connect('render-complete', (function(tile, data, size, error) {
 
             if(!error){
                 if(this.cache && tile.data){
                    this.cache.store_tile(tile, tile.data, tile.data.length);
                 }
-                tile.display_content();
                 tile.set_state(Champlain.State.DONE);
             }
             else if(this.next_source){
