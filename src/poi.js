@@ -20,12 +20,11 @@
 
 const Lang = imports.lang;
 
-const Signals = imports.signals;
-const Champlain = imports.gi.Champlain;
 const Geocode = imports.gi.GeocodeGlib;
 const Gio = imports.gi.Gio;
 
 const Place = imports.place;
+const Utils = imports.utils;
 
 const _UNKNOWN = 'Unknown';
 
@@ -171,4 +170,4 @@ const POI = new Lang.Class({
 		this._place_type = value;
 	}
 });
-Signals.addSignalMethods(POI.prototype);
+Utils.addSignalMethods(POI.prototype);

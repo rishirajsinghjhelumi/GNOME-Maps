@@ -20,7 +20,6 @@
 
 const Lang = imports.lang;
 
-const Signals = imports.signals;
 const Champlain = imports.gi.Champlain;
 const Clutter = imports.gi.Clutter;
 const Cogl = imports.gi.Cogl;
@@ -49,7 +48,7 @@ const POILocation = new Lang.Class({
 
 	show: function() {
 
-		if(!this._place.get_icon()){
+		if(!this._place.get_icon()) {
 			return;
 		}
 
@@ -75,4 +74,4 @@ const POILocation = new Lang.Class({
 	}
 
 });
-Signals.addSignalMethods(POILocation.prototype);
+Utils.addSignalMethods(POILocation.prototype);

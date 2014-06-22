@@ -20,7 +20,7 @@
 
 const Lang = imports.lang;
 
-const Signals = imports.signals;
+const Utils = imports.utils;
 const Geocode = imports.gi.GeocodeGlib;
 
 const Place = new Lang.Class({
@@ -37,4 +37,4 @@ const Place = new Lang.Class({
 	}
 	
 });
-Signals.addSignalMethods(Place.prototype);
+Utils.addSignalMethods(Place.prototype);

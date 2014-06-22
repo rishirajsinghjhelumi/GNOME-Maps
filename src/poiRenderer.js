@@ -20,7 +20,6 @@
 
 const Lang = imports.lang;
 
-const Signals = imports.signals;
 const Champlain = imports.gi.Champlain;
 
 const Utils = imports.utils;
@@ -53,7 +52,7 @@ const POIRenderer = new Lang.Class({
         places = places.map(POI.convertJSONPlaceToPOI);
 
         places.forEach((function(place) {
-            
+
             let poiLocation = new POILocation.POILocation(place);
             poiLocation.show();
 
@@ -63,4 +62,4 @@ const POIRenderer = new Lang.Class({
         tile.emit('render-complete', null, this.data.length, false);
     }
 });
-Signals.addSignalMethods(POIRenderer.prototype);
+Utils.addSignalMethods(POIRenderer.prototype);

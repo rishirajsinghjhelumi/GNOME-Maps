@@ -20,7 +20,6 @@
 
 const Lang = imports.lang;
 
-const Signals = imports.signals;
 const Champlain = imports.gi.Champlain;
 
 const MapOverlaySource = imports.mapOverlaySource;
@@ -118,17 +117,17 @@ const POIMapSource = new Lang.Class({
 
         tile.connect('render-complete', (function(tile, data, size, error) {
 
-            if(!error){
-                if(this.cache && tile.data){
+            if(!error) {
+                if(this.cache && tile.data) {
                    this.cache.store_tile(tile, tile.data, tile.data.length);
                 }
                 tile.set_state(Champlain.State.DONE);
             }
-            else if(this.next_source){
+            else if(this.next_source) {
                 this.next_source.fill_tile(tile);
             }
 
         }).bind(this));
     }
 });
-Signals.addSignalMethods(POIMapSource.prototype);
+Utils.addSignalMethods(POIMapSource.prototype);

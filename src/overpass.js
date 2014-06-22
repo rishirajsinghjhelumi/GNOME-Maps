@@ -20,7 +20,7 @@
 
 const Lang = imports.lang;
 
-const Signals = imports.signals;
+const Utils = imports.utils;
 const Soup = imports.gi.Soup;
 const Format = imports.format;
 const Geocode = imports.gi.GeocodeGlib;
@@ -61,16 +61,13 @@ const Overpass = new Lang.Class({
         // Types of Tags we want to search : pub, school, hospital etc
         this.searchTags = [];
 
-        // Area of Search
-        this.bbox = null;
-
         // HTTP Session Variables
         this._session = new Soup.Session();
         this._session.use_thread_context = true;
         Soup.Session.prototype.add_feature.call(this._session, new Soup.ProxyResolverDefault());
     },
 
-    addSearchTag: function(key, value){
+    addSearchTag: function(key, value) {
 
         // The special phrase supported by OSM can be found at:
         // http://wiki.openstreetmap.org/wiki/Nominatim/Special_Phrases/EN
@@ -85,26 +82,27 @@ const Overpass = new Lang.Class({
 
         let url = this.getQueryUrl(bbox);
         let uri = new Soup.URI(url);
-        let request = new Soup.Message({method:'GET', uri:uri});
+        let request = new Soup.Message({
+            method: 'GET',
+            uri: uri
+        });
 
         this._session.queue_message(request, (function(obj, message) {
 
-            if(message.status_code !== Soup.KnownStatusCode.OK){
+            if(message.status_code !== Soup.KnownStatusCode.OK) {
                 callback([]);
                 return;
             }
 
             let pois = [];
-            try{
+            try {
                 pois = JSON.parse(message.response_body.data)['elements'];
             } catch(e) {
                 pois = [];
             }
 
-            // for (var i = 0; i < pois.length; i++) {
-            //     pois[i] = convertJSONPlaceToGeocodePlace(pois[i]);
-            // }
             callback(pois);
+
         }).bind(this));
 
     },
@@ -150,7 +148,7 @@ const Overpass = new Lang.Class({
     _getTagString: function() {
 
         let tagString = '';
-        this.searchTags.forEach(function(tag){
+        this.searchTags.forEach(function(tag) {
             tagString += Format.vprintf('node[%s=%s];',
                 [
                     tag.key,
@@ -170,4 +168,4 @@ const Overpass = new Lang.Class({
     }
 
 });
-Signals.addSignalMethods(Overpass.prototype);
+Utils.addSignalMethods(Overpass.prototype);
