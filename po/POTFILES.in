@@ -9,6 +9,7 @@ src/geoclue.js
 src/mainWindow.js
 [type: gettext/glade]src/main-window.ui
 src/mapLocation.js
+src/mapMarker.js
 src/mapView.js
 src/routeService.js
 src/sidebar.js
