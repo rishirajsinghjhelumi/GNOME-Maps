@@ -53,17 +53,6 @@ const POILocation = new Lang.Class({
 			return;
 		}
 
-		// this._poiOuterCircleImage = null;
-  //       Utils.load_icon(Gio.ThemedIcon.new('poi-circle-red'), _POI_ICON_SIZE, (function(pixbuf) {
-  //           let image = new Clutter.Image();
-  //           image.set_data(pixbuf.get_pixels(),
-  //                          Cogl.PixelFormat.RGBA_8888,
-  //                          pixbuf.get_width(),
-  //                          pixbuf.get_height(),
-  //                          pixbuf.get_rowstride());
-  //           this._poiOuterCircleImage = image;
-  //       }).bind(this));
-
 		Utils.load_icon(this._place.get_icon(), _POI_ICON_SIZE, (function(pixbuf) {
             let image = new Clutter.Image();
             image.set_data(pixbuf.get_pixels(),
@@ -79,6 +68,7 @@ const POILocation = new Lang.Class({
             iconMarker.set_content(image);
         	iconMarker.set_size(pixbuf.get_width(), pixbuf.get_height());
         	iconMarker.set_location(this._place.location.latitude, this._place.location.longitude);
+
         	this._poiLayer.add_marker(iconMarker);
 
 		}).bind(this));

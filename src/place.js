@@ -21,7 +21,6 @@
 const Lang = imports.lang;
 
 const Signals = imports.signals;
-const Champlain = imports.gi.Champlain;
 const Geocode = imports.gi.GeocodeGlib;
 
 const Place = new Lang.Class({
