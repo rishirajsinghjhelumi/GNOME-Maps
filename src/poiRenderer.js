@@ -27,8 +27,6 @@ const Utils = imports.utils;
 const POI = imports.poi;
 const POILocation = imports.poiLocation;
 
-const _POI_ICON_SIZE = 20;
-
 const POIRenderer = new Lang.Class({
 	Name: 'POIRenderer',
     Extends: Champlain.Renderer,
@@ -55,9 +53,7 @@ const POIRenderer = new Lang.Class({
         places = places.map(POI.convertJSONPlaceToPOI);
 
         places.forEach((function(place) {
-            if (!place.icon)
-                return;
-
+            
             let poiLocation = new POILocation.POILocation(place);
             poiLocation.show();
 

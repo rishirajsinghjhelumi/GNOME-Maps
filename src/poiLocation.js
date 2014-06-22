@@ -22,10 +22,8 @@ const Lang = imports.lang;
 
 const Signals = imports.signals;
 const Champlain = imports.gi.Champlain;
-const Geocode = imports.gi.GeocodeGlib;
 const Clutter = imports.gi.Clutter;
 const Cogl = imports.gi.Cogl;
-const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 
 const MapLocation = imports.mapLocation;
@@ -50,6 +48,10 @@ const POILocation = new Lang.Class({
 	},
 
 	show: function() {
+
+		if(!this._place.get_icon()){
+			return;
+		}
 
 		// this._poiOuterCircleImage = null;
   //       Utils.load_icon(Gio.ThemedIcon.new('poi-circle-red'), _POI_ICON_SIZE, (function(pixbuf) {

@@ -109,7 +109,6 @@ const MapView = new Lang.Class({
 
         let source = this._factory.create_cached_source(mapType);
         this.view.set_map_source(source);
-
         this.view.add_overlay_source(this._poiSource, 255);
     },
 
