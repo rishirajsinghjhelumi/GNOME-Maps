@@ -36,8 +36,8 @@ const Signals = imports.signals;
 const Application = imports.application;
 const Utils = imports.utils;
 const Path = imports.path;
-const MapLocation = imports.mapLocation;
 const MapWalker = imports.mapWalker;
+const SearchResultMarker = imports.searchResultMarker;
 const UserLocationMarker = imports.userLocationMarker;
 const _ = imports.gettext.gettext;
 
@@ -94,8 +94,8 @@ const MapView = new Lang.Class({
         this.view.add_layer(this._routeLayer);
 
         let mode = Champlain.SelectionMode.SINGLE;
-        this._markerLayer = new Champlain.MarkerLayer({ selection_mode: mode });
-        this.view.add_layer(this._markerLayer);
+        this._searchResultLayer = new Champlain.MarkerLayer({ selection_mode: mode });
+        this.view.add_layer(this._searchResultLayer);
 
         this._userLocationLayer = new Champlain.MarkerLayer({ selection_mode: mode });
         this.view.add_layer(this._userLocationLayer);
@@ -152,18 +152,22 @@ const MapView = new Lang.Class({
         this.emit('user-location-changed');
     },
 
-    showLocation: function(place) {
-        this._markerLayer.remove_all();
-        let mapLocation = new MapLocation.MapLocation(place, this);
+    showSearchResult: function(place, showBubble) {
+        this._searchResultLayer.remove_all();
+        let searchResultMarker = new SearchResultMarker.SearchResultMarker({ place: place,
+                                                                             mapView: this });
 
-        mapLocation.show(this._markerLayer);
+        this._searchResultLayer.add_marker(searchResultMarker);
 
-        return mapLocation;
+        if (showBubble)
+            searchResultMarker.selected = true;
+
+        return searchResultMarker;
     },
 
-    showNGotoLocation: function(place) {
-        let mapLocation = this.showLocation(place);
-        mapLocation.goTo(true);
+    showNGotoSearchResult: function(place) {
+        let searchResultMarker = this.showSearchResult(place, false);
+        searchResultMarker.goToAndSelect(true);
     },
 
     showRoute: function(route) {
