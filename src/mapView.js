@@ -36,8 +36,8 @@ const Signals = imports.signals;
 const Application = imports.application;
 const Utils = imports.utils;
 const Path = imports.path;
-const MapLocation = imports.mapLocation;
 const MapWalker = imports.mapWalker;
+const SearchResultMarker = imports.searchResultMarker;
 const UserLocationMarker = imports.userLocationMarker;
 const _ = imports.gettext.gettext;
 
@@ -93,9 +93,9 @@ const MapView = new Lang.Class({
         this._routeLayer.set_stroke_width(2.0);
         this.view.add_layer(this._routeLayer);
 
-        this._markerLayer = new Champlain.MarkerLayer();
-        this._markerLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
-        this.view.add_layer(this._markerLayer);
+        this._searchResultLayer = new Champlain.MarkerLayer();
+        this._searchResultLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
+        this.view.add_layer(this._searchResultLayer);
 
         this._userLocationLayer = new Champlain.MarkerLayer();
         this._userLocationLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
@@ -154,18 +154,26 @@ const MapView = new Lang.Class({
         this.emit('user-location-changed');
     },
 
-    showLocation: function(place) {
-        this._markerLayer.remove_all();
-        let mapLocation = new MapLocation.MapLocation(place, this);
+    showSearchResult: function(place, showBubble) {
+        this._searchResultLayer.remove_all();
+        let searchResultMarker = new SearchResultMarker.SearchResultMarker({ place: place,
+                                                                             mapView: this });
 
-        mapLocation.show(this._markerLayer);
+        searchResultMarker.addToLayer(this._searchResultLayer);
 
-        return mapLocation;
+        if (showBubble)
+            searchResultMarker.showBubble();
+
+        return searchResultMarker;
     },
 
-    showNGotoLocation: function(place) {
-        let mapLocation = this.showLocation(place);
-        mapLocation.goTo(true);
+    showNGotoSearchResult: function(place) {
+        let searchResultMarker = this.showSearchResult(place, false);
+        searchResultMarker.goTo(true);
+
+        searchResultMarker.connect('gone-to', function() {
+            searchResultMarker.showBubble();
+        });
     },
 
     showRoute: function(route) {
