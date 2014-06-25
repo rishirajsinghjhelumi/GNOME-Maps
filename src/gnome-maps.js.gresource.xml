@@ -15,6 +15,7 @@
     <file>mapView.js</file>
     <file>notification.js</file>
     <file>notificationManager.js</file>
+    <file>overpass.js</file>
     <file>path.js</file>
     <file>placeEntry.js</file>
     <file>placeStore.js</file>
