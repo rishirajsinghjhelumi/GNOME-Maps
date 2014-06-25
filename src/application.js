@@ -37,6 +37,7 @@ const Format = imports.format;
 const Geoclue = imports.geoclue;
 const GeocodeService = imports.geocodeService;
 const MainWindow = imports.mainWindow;
+const MapView = imports.mapView;
 const Notification = imports.notification;
 const NotificationManager = imports.notificationManager;
 const Utils = imports.utils;
@@ -53,6 +54,7 @@ let notificationManager = null;
 let routeService = null;
 let geoclue = null;
 let geocodeService = null;
+let mapView = null;
 
 const Application = new Lang.Class({
     Name: 'Application',
@@ -115,6 +117,7 @@ const Application = new Lang.Class({
         routeService   = new RouteService.GraphHopper();
         geoclue        = new Geoclue.Geoclue();
         geocodeService = new GeocodeService.GeocodeService();
+        mapView        = new MapView.MapView();
     },
 
     _createWindow: function() {
