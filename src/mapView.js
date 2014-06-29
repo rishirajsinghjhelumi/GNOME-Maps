@@ -39,6 +39,8 @@ const Path = imports.path;
 const MapWalker = imports.mapWalker;
 const SearchResultMarker = imports.searchResultMarker;
 const UserLocationMarker = imports.userLocationMarker;
+const Geoclue = imports.geoclue;
+const POIMapSource = imports.poiMapSource;
 const _ = imports.gettext.gettext;
 
 const MapType = {
@@ -49,6 +51,7 @@ const MapType = {
 };
 
 const MapMinZoom = 2;
+const _MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
 
 const MapView = new Lang.Class({
     Name: 'MapView',
@@ -59,6 +62,8 @@ const MapView = new Lang.Class({
 
         this.view = this._initView();
         this._initLayers();
+
+        this._poiSource = POIMapSource.createCachedSource();
 
         this._factory = Champlain.MapSourceFactory.dup_default();
         this.setMapType(MapType.STREET);
@@ -79,6 +84,16 @@ const MapView = new Lang.Class({
 
         view.connect('notify::latitude', this._onViewMoved.bind(this));
         view.connect('notify::longitude', this._onViewMoved.bind(this));
+
+        this.view.connect('notify::zoom-level', (function() {
+            if(this.view.zoom_level < _MIN_POI_DISPLAY_ZOOM_LEVEL) {
+                this.poiLayer.remove_all();
+            }
+            else {
+                this.poiLayer.show_all_markers();
+            }
+        }).bind(this));
+
         // switching map type will set view min-zoom-level from map source
         view.connect('notify::min-zoom-level', (function() {
             if (view.min_zoom_level < MapMinZoom) {
@@ -93,6 +108,10 @@ const MapView = new Lang.Class({
         this._routeLayer.set_stroke_width(2.0);
         this.view.add_layer(this._routeLayer);
 
+        this.poiLayer = new Champlain.MarkerLayer();
+        this.poiLayer.set_selection_mode(Champlain.SelectionMode.MULTIPLE);
+        this.view.add_layer(this.poiLayer);
+
         this._searchResultLayer = new Champlain.MarkerLayer();
         this._searchResultLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
         this.view.add_layer(this._searchResultLayer);
@@ -105,6 +124,11 @@ const MapView = new Lang.Class({
     _connectRouteSignals: function(route) {
         route.connect('update', this.showRoute.bind(this, route));
         route.connect('reset', this._routeLayer.remove_all.bind(this._routeLayer));
+
+        this.geoclue = new Geoclue.Geoclue();
+        this._updateUserLocation();
+        this.geoclue.connect("location-changed",
+                             this._updateUserLocation.bind(this));
     },
 
     setMapType: function(mapType) {
@@ -113,6 +137,7 @@ const MapView = new Lang.Class({
 
         let source = this._factory.create_cached_source(mapType);
         this.view.set_map_source(source);
+        this.view.add_overlay_source(this._poiSource, 255);
     },
 
     ensureLocationsVisible: function(locations) {
