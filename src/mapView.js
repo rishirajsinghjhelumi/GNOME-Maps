@@ -85,8 +85,8 @@ const MapView = new Lang.Class({
         view.connect('notify::latitude', this._onViewMoved.bind(this));
         view.connect('notify::longitude', this._onViewMoved.bind(this));
 
-        this.view.connect('notify::zoom-level', (function() {
-            if(this.view.zoom_level < _MIN_POI_DISPLAY_ZOOM_LEVEL) {
+        view.connect('notify::zoom-level', (function() {
+            if(view.zoom_level < _MIN_POI_DISPLAY_ZOOM_LEVEL) {
                 this.poiLayer.remove_all();
             }
             else {

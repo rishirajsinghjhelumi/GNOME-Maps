@@ -25,7 +25,7 @@ const Clutter = imports.gi.Clutter;
 const Cogl = imports.gi.Cogl;
 const Gio = imports.gi.Gio;
 
-const MapLocation = imports.mapLocation;
+const MapMarker = imports.mapMarker;
 const Application = imports.application;
 const Utils = imports.utils;
 
@@ -33,7 +33,7 @@ const _POI_ICON_SIZE = 20;
 
 const POILocation = new Lang.Class({
 	Name: 'POILocation',
-	Extends: MapLocation.MapLocation,
+	Extends: MapMarker.MapMarker,
 
 	_init: function(place) {
 
