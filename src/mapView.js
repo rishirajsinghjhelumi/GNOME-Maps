@@ -39,6 +39,7 @@ const Path = imports.path;
 const MapWalker = imports.mapWalker;
 const SearchResultMarker = imports.searchResultMarker;
 const UserLocationMarker = imports.userLocationMarker;
+const POIMapSource = imports.poiMapSource;
 const _ = imports.gettext.gettext;
 
 const MapType = {
@@ -59,6 +60,8 @@ const MapView = new Lang.Class({
 
         this.view = this._initView();
         this._initLayers();
+
+        this._poiSource = POIMapSource.createCachedSource(this);
 
         this._factory = Champlain.MapSourceFactory.dup_default();
         this.setMapType(MapType.STREET);
@@ -85,6 +88,7 @@ const MapView = new Lang.Class({
                 view.min_zoom_level = MapMinZoom;
             }
         }).bind(this));
+
         return view;
     },
 
@@ -92,6 +96,10 @@ const MapView = new Lang.Class({
         this._routeLayer = new Champlain.PathLayer();
         this._routeLayer.set_stroke_width(2.0);
         this.view.add_layer(this._routeLayer);
+
+        this.poiLayer = new Champlain.MarkerLayer();
+        this.poiLayer.set_selection_mode(Champlain.SelectionMode.MULTIPLE);
+        this.view.add_layer(this.poiLayer);
 
         this._searchResultLayer = new Champlain.MarkerLayer();
         this._searchResultLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
@@ -113,6 +121,7 @@ const MapView = new Lang.Class({
 
         let source = this._factory.create_cached_source(mapType);
         this.view.set_map_source(source);
+        this.view.add_overlay_source(this._poiSource, 255);
     },
 
     ensureLocationsVisible: function(locations) {
