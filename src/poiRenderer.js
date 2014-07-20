@@ -25,6 +25,7 @@ const Champlain = imports.gi.Champlain;
 const POIMarker = imports.poiMarker;
 const Overpass = imports.overpass;
 
+const _UNKNOWN = 'Unknown';
 const _MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
 
 const POIRenderer = new Lang.Class({
@@ -64,6 +65,9 @@ const POIRenderer = new Lang.Class({
         places = places.map(Overpass.convertJSONPlaceToPOI);
 
         places.forEach((function(place) {
+            if(place.name == _UNKNOWN)
+                return;
+
             let poiMarker = new POIMarker.POIMarker({
                 place: place,
                 mapView: this._mapView

@@ -67,6 +67,11 @@ const POIMarker = new Lang.Class({
     },
 
     _onMarkerSelected: function() {
+        // this._mapView.poiLayer.unselect_all_markers();
+        let selectedMarkerList = this._mapView.poiLayer.get_selected();
+        selectedMarkerList.forEach(function(marker){
+            marker.hideBubble();
+        });
         this.showBubble();
     }
 });
