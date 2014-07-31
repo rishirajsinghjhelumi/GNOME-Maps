@@ -32,5 +32,13 @@
     <file>userLocationBubble.js</file>
     <file>utils.js</file>
     <file>zoomControl.js</file>
+    <file>geoMath.js</file>
+    <file>mapOverlaySource.js</file>
+    <file>overpass.js</file>
+    <file>poi.js</file>
+    <file>poiBubble.js</file>
+    <file>poiMapSource.js</file>
+    <file>poiMarker.js</file>
+    <file>poiRenderer.js</file>
   </gresource>
 </gresources>
