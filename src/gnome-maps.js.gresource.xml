@@ -22,6 +22,7 @@
     <file>path.js</file>
     <file>placeEntry.js</file>
     <file>placeStore.js</file>
+    <file>poi.js</file>
     <file>route.js</file>
     <file>routeQuery.js</file>
     <file>routeService.js</file>
