@@ -22,7 +22,6 @@ const Lang = imports.lang;
 
 const Champlain = imports.gi.Champlain;
 
-const MapOverlaySource = imports.mapOverlaySource;
 const Overpass = imports.overpass;
 const GeoMath = imports.geoMath;
 const POI = imports.poi;
@@ -31,7 +30,15 @@ const Utils = imports.utils;
 
 const _FILE_CACHE_NUM = 1e9;
 const _MEMORY_CACHE_NUM = 200;
-const _MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
+const MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
+
+const _TILE_SIZE = 256;
+const _MAX_ZOOM_LEVEL = MIN_POI_DISPLAY_ZOOM_LEVEL;
+const _MIN_ZOOM_LEVEL = 17;
+const _ID = 'maps-poi';
+const _NAME = 'GNOME Maps POI';
+const _LICENSE = 'Map Data ODBL OpenStreetMap Contributors, Maki Icons Copyright© 2013, Mapbox';
+const _LICENSE_URI = 'http://creativecommons.org/licenses/by-sa/2.0/';
 
 function createCachedSource(mapView) {
 
@@ -51,26 +58,18 @@ function createCachedSource(mapView) {
 
 const POIMapSource = new Lang.Class({
     Name: 'POIMapSource',
-    Extends: MapOverlaySource.MapOverlaySource,
+    Extends: Champlain.TileSource,
 
     _init: function(renderer) {
-        this.parent({
-            tile_size: 256,
-            max_zoom_level: 0,
-            min_zoom_level: 17,
-            id: 'maps-poi',
-            name: 'GNOME Maps POI',
-            license: 'Map Data ODBL OpenStreetMap Contributors, Maki Icons Copyright© 2013, Mapbox',
-            license_uri: 'http://creativecommons.org/licenses/by-sa/2.0/'
-        });
+        this.parent();
 
         this.renderer = renderer;
         this.overpassQuery = new Overpass.Overpass({});
 
         let key = undefined;
         let value = undefined;
-        for(key in POI.poiTypes) {
-            for(value in POI.poiTypes[key]) {
+        for (key in POI.poiTypes) {
+            for (value in POI.poiTypes[key]) {
                 this.overpassQuery.addTag(key, value);
             }
         }
@@ -78,11 +77,11 @@ const POIMapSource = new Lang.Class({
 
     vfunc_fill_tile: function(tile) {
 
-        if (tile.get_state() === Champlain.State.DONE || tile.get_state() === Champlain.State.LOADED)
+        if (tile.state === Champlain.State.DONE || tile.state === Champlain.State.LOADED)
             return;
 
-        if (tile.zoom_level < _MIN_POI_DISPLAY_ZOOM_LEVEL) {
-            tile.set_state(Champlain.State.DONE);
+        if (tile.zoom_level < MIN_POI_DISPLAY_ZOOM_LEVEL) {
+            tile.state = Champlain.State.DONE;
             return;
         }
 
@@ -95,15 +94,43 @@ const POIMapSource = new Lang.Class({
 
         tile.connect('render-complete', (function(tile, data, size, error) {
             if (!error) {
-                if (this.cache && tile.data) {
-                   this.cache.store_tile(tile, tile.data, tile.data.length);
+                data = tile.data;
+                if (this.cache && data) {
+                   this.cache.store_tile(tile, data, size);
                 }
-                tile.set_state(Champlain.State.DONE);
+                tile.state = Champlain.State.DONE;
             }
             else if (this.next_source) {
                 this.next_source.fill_tile(tile);
             }
         }).bind(this));
+    },
+
+    vfunc_get_tile_size: function() {
+        return _TILE_SIZE;
+    },
+
+    vfunc_get_max_zoom_level: function() {
+        return _MAX_ZOOM_LEVEL;
+    },
+
+    vfunc_get_min_zoom_level: function() {
+        return _MIN_ZOOM_LEVEL;
+    },
+
+    vfunc_get_id: function() {
+        return _ID;
+    },
+
+    vfunc_get_name: function() {
+        return _NAME;
+    },
+
+    vfunc_get_license: function() {
+        return _LICENSE;
+    },
+
+    vfunc_get_license_uri: function() {
+        return _LICENSE_URI;
     }
-    
 });

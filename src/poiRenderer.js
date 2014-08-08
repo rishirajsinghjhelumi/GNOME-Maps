@@ -23,11 +23,9 @@ const Lang = imports.lang;
 const Champlain = imports.gi.Champlain;
 
 const POIMarker = imports.poiMarker;
+const POIMapSource = imports.poiMapSource;
 const Overpass = imports.overpass;
 const Utils = imports.utils;
-
-const _UNKNOWN = 'Unknown';
-const _MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
 
 /**
  * The data that is cached using champlain in file system adds some extra characters at the end
@@ -51,16 +49,11 @@ const POIRenderer = new Lang.Class({
         this.parent();
 
         let view = this._mapView.view;
-        
-        this._mapView.poiLayer = new Champlain.MarkerLayer();
-        this._mapView.poiLayer.set_selection_mode(Champlain.SelectionMode.MULTIPLE);
-        view.add_layer(this._mapView.poiLayer);
-
         let poiLayer = this._mapView.poiLayer;
         view.connect('notify::zoom-level', (function() {
             poiLayer.remove_all();
             this._renderedTiles = {};
-            if(view.zoom_level >= _MIN_POI_DISPLAY_ZOOM_LEVEL) {
+            if (view.zoom_level >= POIMapSource.MIN_POI_DISPLAY_ZOOM_LEVEL) {
                 poiLayer.show_all_markers();
             }
         }).bind(this));
@@ -71,22 +64,14 @@ const POIRenderer = new Lang.Class({
         this.size = size;
     },
 
-    setRendered: function(tile) {
-        this._renderedTiles[(tile.get_x() + '/' + tile.get_y())] = true;
-    },
-
-    isRendered: function(tile) {
-        return ((tile.get_x() + '/' + tile.get_y()) in this._renderedTiles);
-    },
-
     vfunc_render: function(tile) {
-        tile.set_state(Champlain.State.LOADING);
+        tile.state = Champlain.State.LOADING;
 
         /** 
          * The tile has no data so,
          * its a rendering error. 
          */
-        if (!this.data) {
+        if (!this.data || this.size === 0) {
             tile.emit('render-complete', null, 0, true);
             return;
         }
@@ -110,16 +95,26 @@ const POIRenderer = new Lang.Class({
         }
 
         places.forEach((function(place) {
-            let poiMarker = new POIMarker.POIMarker({
-                place: place,
-                mapView: this._mapView
-            });
+            let poiMarker = new POIMarker.POIMarker({ place: place,
+                                                      mapView: this._mapView });
             poiMarker.addToLayer(this._mapView.poiLayer);
         }).bind(this));
 
-        tile.data = this.data; // Hack
+        /**
+         * The render-complete emit signal requires its first parameter to be G_TYPE_POINTER
+         * but GJS is unable to convert the string to gpointer while passing which causes error.
+         * The data is therefore passed as a property of the tile.
+         */
+        tile.data = this.data;
         this.setRendered(tile);
         tile.emit('render-complete', null, this.data.length, false);
+    },
+
+    setRendered: function(tile) {
+        this._renderedTiles[(tile.get_x() + '/' + tile.get_y())] = true;
+    },
+
+    isRendered: function(tile) {
+        return ((tile.get_x() + '/' + tile.get_y()) in this._renderedTiles);
     }
-    
 });

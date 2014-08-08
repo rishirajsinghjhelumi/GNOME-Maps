@@ -96,6 +96,10 @@ const MapView = new Lang.Class({
         this._routeLayer.set_stroke_width(2.0);
         this.view.add_layer(this._routeLayer);
 
+        this.poiLayer = new Champlain.MarkerLayer();
+        this.poiLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
+        this.view.add_layer(this.poiLayer);
+
         this._searchResultLayer = new Champlain.MarkerLayer();
         this._searchResultLayer.set_selection_mode(Champlain.SelectionMode.SINGLE);
         this.view.add_layer(this._searchResultLayer);

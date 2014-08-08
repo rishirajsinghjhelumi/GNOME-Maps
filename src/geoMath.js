@@ -51,10 +51,8 @@ function latitudeToTile(latitude, zoom) {
 }
 
 function bboxFromTile(tile) {
-    return new Champlain.BoundingBox({
-        top: tileToLatitude(tile.zoom_level, tile.y),
-        left: tileToLongitude(tile.zoom_level, tile.x),
-        bottom: tileToLatitude(tile.zoom_level, tile.y + 1),
-        right: tileToLongitude(tile.zoom_level, tile.x + 1)
-    });
+    return new Champlain.BoundingBox({ top: tileToLatitude(tile.zoom_level, tile.y),
+                                       left: tileToLongitude(tile.zoom_level, tile.x),
+                                       bottom: tileToLatitude(tile.zoom_level, tile.y + 1),
+                                       right: tileToLongitude(tile.zoom_level, tile.x + 1) });
 }

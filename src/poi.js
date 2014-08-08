@@ -23,7 +23,6 @@ const Lang = imports.lang;
 const Geocode = imports.gi.GeocodeGlib;
 const Gio = imports.gi.Gio;
 
-const _UNKNOWN = 'Unknown';
 const _POI_DEFAULT_ICON = 'poi-marker';
 
 const poiTypes = {
@@ -97,6 +96,8 @@ const poiTypes = {
 };
 
 function getPOIIconFromTag(key, value) {
+    if (key === null || value === null)
+        return _POI_DEFAULT_ICON;
     return poiTypes[key][value] || _POI_DEFAULT_ICON;
 }
 
@@ -104,11 +105,15 @@ function getPOITypeFromPlaceJSON(place) {
     let key = null;
     let value = null;
     let k = null;
-    for(k in poiTypes) {
-        if (k in place.tags)
+    for (k in poiTypes) {
+        if (k in place.tags) {
             key = k;
+            break;
+        }
     }
-    value = place.tags[key];
+
+    if (key !== null)
+        value = place.tags[key];
 
     return getPOIIconFromTag(key, value);
 }
@@ -124,15 +129,11 @@ const POI = new Lang.Class({
         this.parent(params);
     },
 
-    get_icon: function() {
-        let icon = new Gio.ThemedIcon({
-            name: this.place_type,
-        });
-        return icon;
+    get icon() {
+        return new Gio.ThemedIcon({ name: this.place_type });
     },
 
     get place_type() {
         return this._type;
     }
-    
 });

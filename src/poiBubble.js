@@ -41,12 +41,11 @@ const POIBubble = new Lang.Class({
                                                     'label-title' ]);
 
         let place = this.place;
-        Utils.load_icon(place.get_icon(), _PLACE_ICON_SIZE, function(pixbuf) {
+        Utils.load_icon(place.icon, _PLACE_ICON_SIZE, function(pixbuf) {
             ui.image.pixbuf = pixbuf;
         });
         ui.labelTitle.label = place.name;
 
         this.add(ui.box);
     }
-    
 });

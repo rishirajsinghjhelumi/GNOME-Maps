@@ -27,10 +27,10 @@ const Gio = imports.gi.Gio;
 
 const MapMarker = imports.mapMarker;
 const POIBubble = imports.poiBubble;
+const POIMapSource = imports.poiMapSource;
 const Utils = imports.utils;
 
 const _POI_ICON_SIZE = 16;
-const _MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
 
 const POIMarker = new Lang.Class({
     Name: 'POIMarker',
@@ -39,15 +39,13 @@ const POIMarker = new Lang.Class({
     _init: function(params) {
         this.parent(params);
 
-        Utils.load_icon(this.place.get_icon(), _POI_ICON_SIZE, (function(pixbuf) {
+        Utils.load_icon(this.place.icon, _POI_ICON_SIZE, (function(pixbuf) {
             let image = new Clutter.Image();
-            image.set_data(
-                pixbuf.get_pixels(),
-                Cogl.PixelFormat.RGBA_8888,
-                pixbuf.get_width(),
-                pixbuf.get_height(),
-                pixbuf.get_rowstride()
-            );
+            image.set_data( pixbuf.get_pixels(),
+                            Cogl.PixelFormat.RGBA_8888,
+                            pixbuf.get_width(),
+                            pixbuf.get_height(),
+                            pixbuf.get_rowstride() );
 
             this.set_content(image);
             this.set_size(pixbuf.get_width(), pixbuf.get_height());
@@ -55,20 +53,18 @@ const POIMarker = new Lang.Class({
     },
 
     addToLayer: function(layer) {
-        if (this._mapView.view.zoom_level >= _MIN_POI_DISPLAY_ZOOM_LEVEL) {
+        if (this._mapView.view.zoom_level >= POIMapSource.MIN_POI_DISPLAY_ZOOM_LEVEL) {
             layer.add_marker(this);
         }
     },
 
     _getHotSpot: function() {
-        return [ Math.floor(this.width / 2), this.height - 3 ];
+        return [ Math.floor(this.width / 2),
+                 this.height - 3 ];
     },
 
     _createBubble: function() {
-        return new POIBubble.POIBubble({
-            place: this.place,
-            mapView: this._mapView
-        });
+        return new POIBubble.POIBubble({ place: this.place,
+                                         mapView: this._mapView });
     }
-    
 });

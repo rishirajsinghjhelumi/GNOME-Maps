@@ -39,23 +39,19 @@ const BASE_URL = 'http://overpass-api.de/api/interpreter';
 
 function convertJSONPlaceToPOI(place) {
     let name = _UNKNOWN;
-    if(place.tags)
+    if (place.tags)
         name = place.tags.name || _UNKNOWN;
 
-    let location = new Geocode.Location({
-        latitude:    place.lat,
-        longitude:   place.lon,
-        accuracy:    0,
-        description: name
-    });
+    let location = new Geocode.Location({ latitude:    place.lat,
+                                          longitude:   place.lon,
+                                          accuracy:    0,
+                                          description: name });
 
-    let poi = new POI.POI({
-        name: name,
-        place_type: Geocode.PlaceType.POINT_OF_INTEREST,
-        location: location,
-        osm_id: place.id.toString(),
-        type: POI.getPOITypeFromPlaceJSON(place)
-    });
+    let poi = new POI.POI({ name: name,
+                            place_type: Geocode.PlaceType.POINT_OF_INTEREST,
+                            location: location,
+                            osm_id: place.id.toString(),
+                            type: POI.getPOITypeFromPlaceJSON(place) });
 
     return poi;
 }
@@ -92,22 +88,18 @@ const Overpass = new Lang.Class({
     },
 
     addTag: function(key, value) {
-        this.searchTags.push({
-            'key': key,
-            'value': value
-        });
+        this.searchTags.push({ 'key': key,
+                               'value': value });
     },
 
     send: function(bbox, callback) {
         let url = this.getQueryUrl(bbox);
         let uri = new Soup.URI(url);
-        let request = new Soup.Message({
-            method: 'GET',
-            uri: uri
-        });
+        let request = new Soup.Message({ method: 'GET',
+                                         uri: uri });
 
         this._session.queue_message(request, (function(obj, message) {
-            if(message.status_code !== Soup.KnownStatusCode.OK) {
+            if (message.status_code !== Soup.KnownStatusCode.OK) {
                 callback([]);
                 return;
             }
@@ -121,62 +113,43 @@ const Overpass = new Lang.Class({
     },
 
     getQueryUrl: function(bbox) {
-        return Format.vprintf('%s?data=%s',
-            [
-                BASE_URL,
-                this._generateOverpassQuery(bbox)
-            ]);
+        return Format.vprintf('%s?data=%s', [ BASE_URL,
+                                              this._generateOverpassQuery(bbox) ]);
     },
 
     _generateOverpassQuery: function(bbox) {
-        return Format.vprintf('%s%s%s%s;(%s);%s;',
-            [
-                this._getBoundingBoxString(bbox),
-                this._getKeyValueString('timeout', this.timeout),
-                this._getKeyValueString('out', this.outputFormat),
-                this._getKeyValueString('maxsize', this.maxsize),
-                this._getTagString(),
-                this._getOutputString()
-            ]);
+        return Format.vprintf('%s%s%s%s;(%s);%s;', [ this._getBoundingBoxString(bbox),
+                                                     this._getKeyValueString('timeout', this.timeout),
+                                                     this._getKeyValueString('out', this.outputFormat),
+                                                     this._getKeyValueString('maxsize', this.maxsize),
+                                                     this._getTagString(),
+                                                     this._getOutputString() ]);
     },
 
     _getBoundingBoxString: function(bbox) {
-        return Format.vprintf('[bbox:%s,%s,%s,%s]',
-            [
-                bbox.bottom,
-                bbox.left,
-                bbox.top,
-                bbox.right
-            ]);
+        return Format.vprintf('[bbox:%s,%s,%s,%s]', [ bbox.bottom,
+                                                      bbox.left,
+                                                      bbox.top,
+                                                      bbox.right ]);
     },
 
     _getKeyValueString: function(key, value) {
-        return Format.vprintf('[%s:%s]',
-            [
-                key,
-                value
-            ]);
+        return Format.vprintf('[%s:%s]', [ key,
+                                           value ]);
     },
 
     _getTagString: function() {
         let tagString = '';
         this.searchTags.forEach(function(tag) {
-            tagString += Format.vprintf('node[%s=%s];',
-                [
-                    tag.key,
-                    tag.value
-                ]);
+            tagString += Format.vprintf('node[%s=%s];', [ tag.key,
+                                                          tag.value ]);
         });
         return tagString;
     },
 
     _getOutputString: function() {
-        return Format.vprintf('out %s %s %s',
-            [
-                this.outputInfo,
-                this.outputSortOrder,
-                this.outputCount,
-            ]);
+        return Format.vprintf('out %s %s %s', [ this.outputInfo,
+                                                this.outputSortOrder,
+                                                this.outputCount ]);
     }
-
 });
