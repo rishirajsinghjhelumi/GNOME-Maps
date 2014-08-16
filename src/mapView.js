@@ -39,6 +39,7 @@ const Path = imports.path;
 const MapWalker = imports.mapWalker;
 const SearchResultMarker = imports.searchResultMarker;
 const UserLocationMarker = imports.userLocationMarker;
+const POIMapSource = imports.poiMapSource;
 const _ = imports.gettext.gettext;
 
 const MapType = {
@@ -59,6 +60,8 @@ const MapView = new Lang.Class({
 
         this.view = this._initView();
         this._initLayers();
+
+        this._poiSource = POIMapSource.createCachedSource(this);
 
         this._factory = Champlain.MapSourceFactory.dup_default();
         this.setMapType(MapType.STREET);
@@ -115,6 +118,7 @@ const MapView = new Lang.Class({
 
         let source = this._factory.create_cached_source(mapType);
         this.view.map_source = source;
+        this.view.add_overlay_source(this._poiSource, 255);
     },
 
     gotoUserLocation: function(animate) {
