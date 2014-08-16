@@ -40,6 +40,7 @@ const Sidebar = imports.sidebar;
 const Utils = imports.utils;
 const Config = imports.config;
 const ZoomControl = imports.zoomControl;
+const PlaceListPopover = imports.placeListPopover;
 
 const _ = imports.gettext.gettext;
 
@@ -54,7 +55,10 @@ const MainWindow = new Lang.Class({
         this._configureId = 0;
         let ui = Utils.getUIObject('main-window', [ 'app-window',
                                                     'header-bar',
-                                                    'layers-button']);
+                                                    'layers-button',
+                                                    'list-favorite-button']);
+
+        this._favoriteButton = ui.listFavoriteButton;
         this.window = ui.appWindow;
         this.window.application = app;
         this._overlay = overlay;
@@ -79,6 +83,7 @@ const MainWindow = new Lang.Class({
         ui.headerBar.set_custom_title(placeEntry);
         placeEntry.has_focus = true;
 
+        this._initFavoritePopover();
         this._initActions();
         this._initSignals();
         this._restoreWindowGeometry();
@@ -107,6 +112,20 @@ const MainWindow = new Lang.Class({
         this.mapView.view.connect('button-press-event',
                                   popover.hide.bind(popover));
         return placeEntry;
+    },
+
+    _initFavoritePopover: function() {
+        let placeType = PlaceStore.PlaceType.FAVORITE;
+        let model = Application.placeStore.getModelForPlaceType(placeType);
+        let popover = new PlaceListPopover.PlaceListPopover({ model: model,
+                                                              num_visible: 10,
+                                                              relative_to: this._favoriteButton,
+                                                              no_show_all: true,
+                                                              visible: true});
+
+        popover.connect('selected', this._onPopoverSelected.bind(this));
+        popover.connect('selected', this._overlay.grab_focus.bind(this._overlay));
+        this._favoriteButton.popover = popover;
     },
 
     _initActions: function() {
@@ -235,6 +254,13 @@ const MainWindow = new Lang.Class({
         }
 
         return false;
+    },
+
+    _onPopoverSelected: function(popover, place) {
+        this.mapView.showNGotoSearchResult(place);
+
+        Application.placeStore.addRecent(place);
+        popover.hide();
     },
 
     _quit: function() {
