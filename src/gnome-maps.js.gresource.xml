@@ -19,6 +19,7 @@
     <file>notificationManager.js</file>
     <file>path.js</file>
     <file>placeEntry.js</file>
+    <file>placeListPopover.js</file>
     <file>placeStore.js</file>
     <file>route.js</file>
     <file>routeQuery.js</file>
