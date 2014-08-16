@@ -263,3 +263,20 @@ function _load_themed_icon(icon, size, loadCompleteCallback) {
         log("Failed to load pixbuf: " + e);
     }
 }
+
+function stringToUnicode(str) {
+    var result = '';
+    for(var i = 0; i < str.length; i++) {
+        var chr = str.charCodeAt(i).toString(16);
+        while( chr.length !== 4 )
+            chr = '0' + chr;
+        result += '\\u' + chr;
+    }
+    return result;
+}
+
+function unicodeToString(unicodeStr) {
+    return unicodeStr.replace(/\\u([\dABCDEFabcdef]{4})/g, function (match) {
+        return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+    });
+}
