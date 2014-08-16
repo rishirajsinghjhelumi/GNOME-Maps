@@ -25,114 +25,22 @@ const GObject = imports.gi.GObject;
 
 const Lang = imports.lang;
 const Utils = imports.utils;
-
-const Columns = {
-    ICON:         0,
-    PLACE:        1,
-    DESCRIPTION:  2,
-};
+const PlaceListPopover = imports.placeListPopover;
 
 const _PLACE_ICON_SIZE = 20;
 
 const SearchPopup = new Lang.Class({
     Name: 'SearchPopup',
-    Extends: Gtk.Popover,
+    Extends: PlaceListPopover.PlaceListPopover,
 
     _init: function(props) {
-        this._numVisible = props.num_visible;
-        delete props.num_visible;
-
-        let ui = Utils.getUIObject('search-popup', ['scrolled-window',
-                                                    'stack',
-                                                    'spinner',
-                                                    'treeview',]);
-
-        this._stack = ui.stack;
-        this._scrolledWindow = ui.scrolledWindow;
-        this._spinner = ui.spinner;
-        this._treeView = ui.treeview;
-
         let model = new Gtk.ListStore();
         model.set_column_types([GdkPixbuf.Pixbuf,
                                 GObject.TYPE_OBJECT,
                                 GObject.TYPE_STRING]);
-        this._treeView.model = model;
-
-        this._treeView.connect('row-activated',
-                               this._onRowActivated.bind(this));
-        this._initList();
-        this.height_request = this._cellHeight * this._numVisible;
-        this._scrolledWindow.set_min_content_height(this.height_request);
+        props.model = model;
 
         this.parent(props);
-
-        this.get_style_context().add_class('maps-popover');
-        this.add(this._stack);
-        this.hide();
-    },
-
-    _initList: function() {
-        let column = new Gtk.TreeViewColumn();
-
-        this._treeView.append_column(column);
-
-        let cell = new Gtk.CellRendererPixbuf({ xpad: 2 });
-        column.pack_start(cell, false);
-        column.add_attribute(cell, 'pixbuf', Columns.ICON);
-
-        cell = new Gtk.CellRendererText({ xpad: 8,
-                                          ypad: 8 });
-        column.pack_start(cell, true);
-        column.add_attribute(cell, 'markup', Columns.DESCRIPTION);
-
-        this._cellHeight = column.cell_get_size(null)[3];
-        this._cellHeight += cell.get_preferred_height(this._treeView)[0];
-    },
-
-    _onRowActivated: function(widget, path, column) {
-        let model = this._treeView.model;
-        let iter_valid, iter;
-
-        if (model === null)
-            return;
-
-        [iter_valid, iter] = model.get_iter(path);
-        if (!iter_valid)
-            return;
-
-        this.emit('selected', model.get_value(iter, Columns.PLACE));
-    },
-
-    showSpinner: function() {
-        this._spinner.start();
-        this._stack.set_visible_child(this._spinner);
-
-        if (!this.get_visible())
-            this.show();
-    },
-
-    showResult: function() {
-        if (this._spinner.active)
-            this._spinner.stop();
-
-        this._stack.set_visible_child(this._scrolledWindow);
-
-        if (!this.get_visible())
-            this.show();
-
-        this._treeView.grab_focus();
-    },
-
-    vfunc_show: function() {
-        this._treeView.columns_autosize();
-        this.parent();
-    },
-
-    vfunc_hide: function() {
-        if (this._spinner.active)
-            this._spinner.stop();
-
-        this.parent();
     },
 
     updateResult: function(places, searchString) {
@@ -152,14 +60,14 @@ const SearchPopup = new Lang.Class({
             description = this._boldMatch(description, searchString);
 
             model.set(iter,
-                      [Columns.DESCRIPTION,
-                       Columns.PLACE],
+                      [PlaceListPopover.Columns.DESCRIPTION,
+                       PlaceListPopover.Columns.PLACE],
                       [description,
                        place]);
 
             if (icon !== null) {
                 Utils.load_icon(icon, _PLACE_ICON_SIZE, function(pixbuf) {
-                    model.set(iter, [Columns.ICON], [pixbuf]);
+                    model.set(iter, [PlaceListPopover.Columns.ICON], [pixbuf]);
                 });
             }
         }).bind(this));

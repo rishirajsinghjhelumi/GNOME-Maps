@@ -124,7 +124,7 @@ const PlaceEntry = new Lang.Class({
                 return;
             }
             this._popover.updateResult(places, this.text);
-            this._popover.showResult();
+            this._popover.showList();
         }).bind(this));
     }
 });
