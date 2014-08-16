@@ -24,6 +24,8 @@ imagesdir = $(datadir)/gnome-maps/pixmaps
 images_DATA =                                   \
 	pin.svg					\
 	user-location.png			\
+	favorite-marked.svg			\
+	favorite-unmarked.svg			\
 	$(NULL)
 
 noinst_DATA =					\
