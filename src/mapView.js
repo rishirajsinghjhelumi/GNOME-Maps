@@ -94,6 +94,9 @@ const MapView = new Lang.Class({
         this.view.add_layer(this._routeLayer);
 
         let mode = Champlain.SelectionMode.SINGLE;
+        this.poiLayer = new Champlain.MarkerLayer({ selection_mode: mode });
+        this.view.add_layer(this.poiLayer);
+
         this._searchResultLayer = new Champlain.MarkerLayer({ selection_mode: mode });
         this.view.add_layer(this._searchResultLayer);
 
