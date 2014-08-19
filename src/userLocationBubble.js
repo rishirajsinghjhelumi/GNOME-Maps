@@ -34,13 +34,19 @@ const UserLocationBubble = new Lang.Class({
 
         let ui = Utils.getUIObject('user-location-bubble', [ 'box',
                                                              'label-accuracy',
-                                                             'label-coordinates' ]);
+                                                             'label-coordinates',
+                                                             'favorite-button',
+                                                             'favorite-image' ]);
 
         let accuracyDescription = Utils.getAccuracyDescription(this.place.location.accuracy);
         ui.labelAccuracy.label = ui.labelAccuracy.label.format(accuracyDescription);
         ui.labelCoordinates.label = this.place.location.latitude.toFixed(5)
                                   + ', '
                                   + this.place.location.longitude.toFixed(5);
+
+        ui.favoriteButton.connect("button-press-event", (function() {
+          ui.favoriteImage.icon_name = 'emblem-mail';
+        }).bind(this));
 
         this.add(ui.box);
     }

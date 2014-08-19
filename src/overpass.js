@@ -84,7 +84,6 @@ const Overpass = new Lang.Class({
 
         // HTTP Session Variables
         this._session = new Soup.Session();
-        Soup.Session.prototype.add_feature.call(this._session, new Soup.ProxyResolverDefault());
     },
 
     addTag: function(key, value) {
@@ -93,7 +92,7 @@ const Overpass = new Lang.Class({
     },
 
     send: function(bbox, callback) {
-        let url = this.getQueryUrl(bbox);
+        let url = this._getQueryUrl(bbox);
         let uri = new Soup.URI(url);
         let request = new Soup.Message({ method: 'GET',
                                          uri: uri });
@@ -112,7 +111,7 @@ const Overpass = new Lang.Class({
         }).bind(this));
     },
 
-    getQueryUrl: function(bbox) {
+    _getQueryUrl: function(bbox) {
         return Format.vprintf('%s?data=%s', [ BASE_URL,
                                               this._generateOverpassQuery(bbox) ]);
     },

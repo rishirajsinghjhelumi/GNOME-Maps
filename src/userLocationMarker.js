@@ -28,11 +28,15 @@ const Gtk = imports.gi.Gtk;
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 
+const Application = imports.application;
 const MapMarker = imports.mapMarker;
 const Path = imports.path;
 const UserLocationBubble = imports.userLocationBubble;
 const Utils = imports.utils;
+const PlaceStore = imports.placeStore;
 const _ = imports.gettext.gettext;
+
+const _FAVORITE_ICON_SIZE = 20;
 
 const AccuracyCircleMarker = new Lang.Class({
     Name: 'AccuracyCircleMarker',
