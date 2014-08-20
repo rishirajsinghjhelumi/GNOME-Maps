@@ -39,6 +39,7 @@ const Path = imports.path;
 const MapWalker = imports.mapWalker;
 const SearchResultMarker = imports.searchResultMarker;
 const UserLocationMarker = imports.userLocationMarker;
+const POIMarkerLayer = imports.poiMarkerLayer;
 const _ = imports.gettext.gettext;
 
 const MapType = {
@@ -94,6 +95,10 @@ const MapView = new Lang.Class({
         this.view.add_layer(this._routeLayer);
 
         let mode = Champlain.SelectionMode.SINGLE;
+        this._poiLayer = new POIMarkerLayer.POIMarkerLayer({ mapView: this,
+                                                             selection_mode: mode });
+        this.view.add_layer(this._poiLayer);
+
         this._searchResultLayer = new Champlain.MarkerLayer({ selection_mode: mode });
         this.view.add_layer(this._searchResultLayer);
 
