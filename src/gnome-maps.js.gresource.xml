@@ -25,6 +25,7 @@
     <file>poi.js</file>
     <file>poiBubble.js</file>
     <file>poiMarker.js</file>
+    <file>poiMarkerLayer.js</file>
     <file>route.js</file>
     <file>routeQuery.js</file>
     <file>routeService.js</file>
