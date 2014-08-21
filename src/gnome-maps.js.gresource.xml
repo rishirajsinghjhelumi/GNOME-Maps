@@ -16,6 +16,7 @@
     <file>mapMarker.js</file>
     <file>mapView.js</file>
     <file>mapWalker.js</file>
+    <file>memoryCache.js</file>
     <file>notification.js</file>
     <file>notificationManager.js</file>
     <file>overpass.js</file>
