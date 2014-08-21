@@ -16,14 +16,13 @@
     <file>mapMarker.js</file>
     <file>mapView.js</file>
     <file>mapWalker.js</file>
-    <file>memoryCache.js</file>
     <file>notification.js</file>
     <file>notificationManager.js</file>
     <file>overpass.js</file>
     <file>path.js</file>
+    <file>place.js</file>
     <file>placeEntry.js</file>
     <file>placeStore.js</file>
-    <file>poi.js</file>
     <file>poiBubble.js</file>
     <file>poiMarker.js</file>
     <file>poiMarkerLayer.js</file>
@@ -35,6 +34,7 @@
     <file>searchResultMarker.js</file>
     <file>settings.js</file>
     <file>sidebar.js</file>
+    <file>tileMemoryCache.js</file>
     <file>userLocationMarker.js</file>
     <file>userLocationBubble.js</file>
     <file>utils.js</file>

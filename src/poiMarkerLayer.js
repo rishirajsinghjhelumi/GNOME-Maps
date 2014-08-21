@@ -22,11 +22,13 @@ const Lang = imports.lang;
 
 const Champlain = imports.gi.Champlain;
 
-const POI = imports.poi;
+const Place = imports.place;
 const Overpass = imports.overpass;
 const POIMarker = imports.poiMarker;
 const GeoMath = imports.geoMath;
-const MemoryCache = imports.memoryCache;
+const TileMemoryCache = imports.tileMemoryCache;
+
+const MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
 
 const POIMarkerLayer = new Lang.Class({
     Name: 'POIMarkerLayer',
@@ -38,12 +40,11 @@ const POIMarkerLayer = new Lang.Class({
 
         this.parent(params);
 
-        this._initOverpass();
-        this._cache = new MemoryCache.MemoryCache({});
+        this._cache = new TileMemoryCache.TileMemoryCache({});
+        this._renderedTiles = {};
 
-        let view = this._mapView.view;
-        view.connect('notify::latitude', this._onViewMoved.bind(this));
-        view.connect('notify::longitude', this._onViewMoved.bind(this));
+        this._initOverpass();
+        this._initSignals();
     },
 
     _initOverpass: function() {
@@ -51,88 +52,132 @@ const POIMarkerLayer = new Lang.Class({
 
         let key = undefined;
         let value = undefined;
-        for (key in POI.poiTypes) {
-            for (value in POI.poiTypes[key]) {
+        for (key in Place.placeTypes) {
+            for (value in Place.placeTypes[key]) {
                 this._overpassQuery.addTag(key, value);
             }
         }
     },
 
-    getTilesInBBOX: function(bbox) {
+    _initSignals: function() {
+        let view = this._mapView.view;
+        view.connect('notify::latitude', this._onViewMoved.bind(this));
+        view.connect('notify::longitude', this._onViewMoved.bind(this));
 
-        let zoom = this._mapView.view.zoom_level;
-        let minX = GeoMath.longitudeToTile(bbox.left, zoom);
-        let minY = GeoMath.latitudeToTile(bbox.top, zoom);
-        let maxX = GeoMath.longitudeToTile(bbox.right, zoom);
-        let maxY = GeoMath.latitudeToTile(bbox.bottom, zoom);
+        view.connect('notify::zoom-level', (function() {
+            this._renderedTiles = {};
+            this.remove_all();
+            this._onViewMoved();
+        }).bind(this));
+    },
+
+    _clusterPOIsInTiles: function(tiles, pois) {
+        let bboxes = tiles.map(GeoMath.bboxFromTile);
+
+        let tilesContent = [];
+        for (let i = 0; i < bboxes.length; i++) {
+            tilesContent.push([]);
+        }
+
+        pois.forEach((function(poi) {
+            for (let i = 0; i < bboxes.length; i++) {
+                if (bboxes[i].covers(poi.lat, poi.lon)) {
+                    tilesContent[i].push(poi);
+                    break;
+                }
+            }
+        }).bind(this));
+
+        return tilesContent;
+    },
+
+    _allCached: function(tiles) {
+        for (let i = 0; i < tiles.length; i++) {
+            if (!this._cache.isCached(tiles[i]))
+                return false;
+        }
+        return true;
+    },
+
+    _cacheTiles: function(tiles, tilesContent) {
+        for (let i = 0; i < tiles.length; i++) {
+            if (!this._cache.isCached(tiles[i]))
+                this._cache.store(tiles[i], tilesContent[i]);
+        }
+    },
+
+    _loadTiles: function(tiles) {
+        tiles.forEach((function(tile) {
+            this._displayContent(tile);
+        }).bind(this));
+    },
+
+    _displayContent: function(tile) {
+        if (this._isRendered(tile))
+                return;
+
+        let places = this._cache.get(tile);
+        places = places.map(Place.newFromOverpass);
+        places.forEach((function(place) {
+            let poiMarker = new POIMarker.POIMarker({ place: place,
+                                                      mapView: this._mapView });
+            if (this._mapView.view.zoom_level >= MIN_POI_DISPLAY_ZOOM_LEVEL)
+                this.add_marker(poiMarker);
+        }).bind(this));
+
+        this._setRendered(tile);
+    },
+
+    _getVisibleTiles: function() {
+        let view = this._mapView.view;
+        let zoom = view.zoom_level;
+        let source = view.get_map_source();
+        let bbox = view.get_bounding_box();
+        let size = source.get_tile_size();
+
+        let minX = Math.floor( source.get_x(zoom, bbox.left) / size );
+        let minY = Math.floor( source.get_y(zoom, bbox.top) / size );
+        let maxX = Math.floor( source.get_x(zoom, bbox.right) / size );
+        let maxY = Math.floor( source.get_y(zoom, bbox.bottom) / size );
 
         let tiles = [];
-        for (let x = minX; x <= maxX; x++) {
-            for (let y = minY; y <= minY; y++) {
+        for (let x = minX; x <= maxX ; x++) {
+            for (let y = minY; y <= maxY; y++) {
                 tiles.push(new Champlain.Tile({ x: x,
                                                 y: y,
                                                 zoom_level: zoom,
-                                                size: 256 }));
+                                                size: size }));
             }
         }
 
         return tiles;
     },
 
-    clusterPOIsInTiles: function(tiles, pois) {
-
-        let bboxes = tiles.map(GeoMath.bboxFromTile);
-        let tilesContent = [];
-        for (let i = 0; i < bboxes.length; i++) {
-            tilesContent.push([]);
-            bboxes[i].left = bboxes[i].left.toFixed(7);
-            bboxes[i].right = bboxes[i].right.toFixed(7);
-            bboxes[i].top = bboxes[i].top.toFixed(7);
-            bboxes[i].bottom = bboxes[i].bottom.toFixed(7);
-        }
-        let x = 0;
-        pois.forEach((function(poi) {
-            for (let i = 0; i < bboxes.length; i++) {
-                log('--------------------------');
-                log(poi.lat + ' , ' + poi.lon);
-                log(bboxes[i].left + ' , ' + bboxes[i].right);
-                log(bboxes[i].top + ' , ' + bboxes[i].bottom);
-                log('--------------------------');
-                if (bboxes[i].covers(poi.lat, poi.lon)) {
-                    tilesContent[i].push(poi);
-                    log(x);
-                    break;
-                }
-            }
-            x++;
-        }).bind(this));
-
-        let s = 0;
-        for (let i = 0; i < tilesContent.length; i++) {
-            s += tilesContent[i].length;
-        }
-
-        log(s + ' , ' + pois.length);
-    },
-
     _onViewMoved: function() {
 
-        if (this._mapView.view.zoom_level < POI.MIN_DISPLAY_ZOOM_LEVEL)
+        if (this._mapView.view.zoom_level < MIN_POI_DISPLAY_ZOOM_LEVEL)
             return;
 
-        this.remove_all();
+        let tiles = this._getVisibleTiles();
+
+        if (this._allCached(tiles)) {
+            this._loadTiles(tiles);
+            return;
+        }
+
         let bbox = this._mapView.view.get_bounding_box();
         this._overpassQuery.send(bbox, (function(pois) {
-
-            let places = pois.map(Overpass.convertJSONPlaceToPOI);
-            let tiles = this.getTilesInBBOX(this._mapView.view.get_bounding_box());
-            this.clusterPOIsInTiles(tiles, pois);
-            places.forEach((function(place) {
-                let poiMarker = new POIMarker.POIMarker({ place: place,
-                                                          mapView: this._mapView });
-                poiMarker.addToLayer(this);
-            }).bind(this));
-
+            let tilesContent = this._clusterPOIsInTiles(tiles, pois);
+            this._cacheTiles(tiles, tilesContent);
+            this._loadTiles(tiles);
         }).bind(this));
+    },
+
+    _setRendered: function(tile) {
+        this._renderedTiles[(tile.get_x() + '/' + tile.get_y())] = true;
+    },
+
+    _isRendered: function(tile) {
+        return ((tile.get_x() + '/' + tile.get_y()) in this._renderedTiles);
     }
 });

@@ -25,7 +25,6 @@ const Cogl = imports.gi.Cogl;
 
 const MapMarker = imports.mapMarker;
 const POIBubble = imports.poiBubble;
-const POI = imports.poi;
 const Utils = imports.utils;
 
 const _POI_ICON_SIZE = 16;
@@ -48,12 +47,6 @@ const POIMarker = new Lang.Class({
             this.set_content(image);
             this.set_size(pixbuf.get_width(), pixbuf.get_height());
         }).bind(this));
-    },
-
-    addToLayer: function(layer) {
-        if (this._mapView.view.zoom_level >= POI.MIN_DISPLAY_ZOOM_LEVEL) {
-            layer.add_marker(this);
-        }
     },
 
     get anchor() {

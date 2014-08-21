@@ -23,11 +23,10 @@ const Lang = imports.lang;
 const Geocode = imports.gi.GeocodeGlib;
 const Gio = imports.gi.Gio;
 
-const MIN_DISPLAY_ZOOM_LEVEL = 16;
+const _UNKNOWN = 'Unknown';
+const _PLACE_DEFAULT_ICON = 'poi-marker';
 
-const _POI_DEFAULT_ICON = 'poi-marker';
-
-const poiTypes = {
+const placeTypes = {
 
     'building' : {
 
@@ -97,17 +96,17 @@ const poiTypes = {
     }
 };
 
-function getPOIIconFromTag(key, value) {
+function getPlaceIconFromTag(key, value) {
     if (key === null || value === null)
-        return _POI_DEFAULT_ICON;
-    return poiTypes[key][value] || _POI_DEFAULT_ICON;
+        return _PLACE_DEFAULT_ICON;
+    return placeTypes[key][value] || _PLACE_DEFAULT_ICON;
 }
 
-function getPOITypeFromPlaceJSON(place) {
+function getPlaceTypeFromPlaceJSON(place) {
     let key = null;
     let value = null;
     let k = null;
-    for (k in poiTypes) {
+    for (k in placeTypes) {
         if (k in place.tags) {
             key = k;
             break;
@@ -117,16 +116,39 @@ function getPOITypeFromPlaceJSON(place) {
     if (key !== null)
         value = place.tags[key];
 
-    return getPOIIconFromTag(key, value);
+    return getPlaceIconFromTag(key, value);
 }
 
-const POI = new Lang.Class({
-    Name: 'POI',
+function newFromOverpass(place) {
+    let name = _UNKNOWN;
+    if (place.tags)
+        name = place.tags.name || _UNKNOWN;
+
+    let location = new Geocode.Location({ latitude:    place.lat,
+                                          longitude:   place.lon,
+                                          accuracy:    0,
+                                          description: name });
+
+    let poi = new Place({ name: name,
+                          place_type: Geocode.PlaceType.POINT_OF_INTEREST,
+                          location: location,
+                          osm_id: place.id.toString(),
+                          type: getPlaceTypeFromPlaceJSON(place),
+                          tags: place.tags || {} });
+
+    return poi;
+}
+
+const Place = new Lang.Class({
+    Name: 'Place',
     Extends: Geocode.Place,
 
     _init: function(params) {
         this._type = params.type;
         delete params.type;
+
+        this._tags = params.tags || {};
+        delete params.tags;
 
         this.parent(params);
     },
@@ -137,5 +159,9 @@ const POI = new Lang.Class({
 
     get place_type() {
         return this._type;
+    },
+
+    get tags() {
+        return this._tags;
     }
 });

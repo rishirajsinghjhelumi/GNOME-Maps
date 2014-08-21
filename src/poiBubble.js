@@ -20,7 +20,10 @@
 
 const Lang = imports.lang;
 
+const Gtk = imports.gi.Gtk;
+
 const MapBubble = imports.mapBubble;
+const Place = imports.place;
 const Utils = imports.utils;
 
 const _PLACE_ICON_SIZE = 48;
@@ -42,6 +45,21 @@ const POIBubble = new Lang.Class({
             ui.image.pixbuf = pixbuf;
         });
         ui.labelTitle.label = place.name;
+
+        let content = [];
+        let tag = undefined;
+        for (tag in this.place.tags) {
+            if (tag in Place.placeTypes || tag === 'name')
+                continue;
+            content.push(tag + ' = ' + this.place.tags[tag]);
+        }
+
+        content.forEach(function(c) {
+            let label = new Gtk.Label({ label: c,
+                                        visible: true,
+                                        halign: Gtk.Align.START });
+            ui.boxRight.pack_start(label, false, true, 0);
+        });
 
         this.add(ui.grid);
     }

@@ -24,43 +24,39 @@ const Format = imports.format;
 
 const Champlain = imports.gi.Champlain;
 
-const _NUM_CACHE = 200;
-
-const MemoryCache = new Lang.Class({
-    Name: 'MemoryCache',
+const TileMemoryCache = new Lang.Class({
+    Name: 'TileMemoryCache',
 
     _init: function(params) {
-    	this._numCache = params.numCache || _NUM_CACHE;
-
-    	this._cachedTiles = {};
+        this._cachedTiles = {};
     },
 
     store: function(tile, content) {
-    	this._cachedTiles[this._encodeTileCoordinates(tile)] = content;
+        this._cachedTiles[this._encodeTileCoordinates(tile)] = content;
     },
 
     get: function(tile) {
-    	return this._cachedTiles[this._encodeTileCoordinates(tile)];
+        return this._cachedTiles[this._encodeTileCoordinates(tile)];
     },
 
     isCached: function(tile) {
-    	return (this._encodeTileCoordinates(tile) in this._cachedTiles);
+        return (this._encodeTileCoordinates(tile) in this._cachedTiles);
     },
 
     clean: function() {
-    	this._cachedTiles = {};
+        this._cachedTiles = {};
     },
 
     _encodeTileCoordinates: function(tile) {
-    	return Format.vprintf('%s/%s/%s', [ tile.get_zoom_level(),
-    										tile.get_x(),
-    										tile.get_y() ]);
+        return Format.vprintf('%s/%s/%s', [ tile.get_zoom_level(),
+                                            tile.get_x(),
+                                            tile.get_y() ]);
     },
 
     _decodeTileCoordinates: function(str) {
-    	let res = str.split('/');
-    	return { x: res[0],
-    			 y: res[1],
-    			 zoom: res[2] };
+        let res = str.split('/');
+        return { x: res[0],
+                 y: res[1],
+                 zoom: res[2] };
     }
 });

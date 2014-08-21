@@ -24,8 +24,6 @@ const Soup = imports.gi.Soup;
 const Format = imports.format;
 const Geocode = imports.gi.GeocodeGlib;
 
-const POI = imports.poi;
-
 const _DEFAULT_TIMEOUT = 180;
 const _DEFAULT_MAXSIZE = 536870912;
 const _DEFAULT_OUTPUT_FORMAT = 'json';
@@ -33,28 +31,7 @@ const _DEFAULT_OUTPUT_COUNT = 1e6;
 const _DEFAULT_OUTPUT_INFO = 'body';
 const _DEFAULT_OUTPUT_SORT_ORDER = 'qt';
 
-const _UNKNOWN = 'Unknown';
-
 const BASE_URL = 'http://overpass-api.de/api/interpreter';
-
-function convertJSONPlaceToPOI(place) {
-    let name = _UNKNOWN;
-    if (place.tags)
-        name = place.tags.name || _UNKNOWN;
-
-    let location = new Geocode.Location({ latitude:    place.lat,
-                                          longitude:   place.lon,
-                                          accuracy:    0,
-                                          description: name });
-
-    let poi = new POI.POI({ name: name,
-                            place_type: Geocode.PlaceType.POINT_OF_INTEREST,
-                            location: location,
-                            osm_id: place.id.toString(),
-                            type: POI.getPOITypeFromPlaceJSON(place) });
-
-    return poi;
-}
 
 const Overpass = new Lang.Class({
     Name: 'Overpass',
