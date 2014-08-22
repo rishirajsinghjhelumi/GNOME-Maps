@@ -50,13 +50,28 @@ const ignoredTags = new Set([
 
 // Ignore codes like 'KSJ2:*', 'osak:*' etc
 const ignoredCodes = [
-    'source:', 'ksj2:', 'osak:',
+    'source:', 'name:', 'osak:',
     'ngbe:', 'yh:', 'ref:',
     'nhd:', '3dshapes:', 'nycdoitt:',
     'linz:', 'clc:', 'massgis:',
     'canvec:', 'wroclawgis:', 'it:',
-    'fhrs:'
+    'fhrs:', 'ksj2:'
 ];
+
+function getBoldText(text) {
+    return Format.vprintf('<b>%s</b>', [ GLib.markup_escape_text(text, -1) ]);
+}
+
+function getURL(link, title) {
+    return Format.vprintf('<a href="%s" title="%s">%s</a>', [ GLib.markup_escape_text(link, -1),
+                                                              title,
+                                                              getBoldText(title) ]);
+}
+
+function getBoldKeyValueString(key, value) {
+    return Format.vprintf('%s: %s', [ getBoldText(key),
+                                      value ]);
+}
 
 function prettifyOSMTag(tag, value) {
     tag = tag.toLowerCase();
@@ -71,38 +86,38 @@ function prettifyOSMTag(tag, value) {
 
     // Elevation
     else if (tag === 'ele')
-        return Format.vprintf('Elevation: %s', [ value ]);
+        return getBoldKeyValueString('Elevation', value);
 
     // Start Date
     else if (tag === 'start_date')
-        return Format.vprintf('Started: %s', [ value ]);
+        return getBoldKeyValueString('Started', value);
 
     // Website
     else if (tag.indexOf('website') > -1 || tag === 'url')
-        return GLib.markup_escape_text(Format.vprintf('<a href="%s">Website</a>', [ value ]), -1);
+        return getURL(value, 'Website');
 
     // Email
     else if (tag.indexOf('email') > -1)
-        return Format.vprintf('Email: %s', [ value ]);
+        return getBoldKeyValueString('Email', value);
 
     // Phone
     else if (tag.indexOf('phone') > -1)
-        return Format.vprintf('Phone: %s', [ value ]);
+        return getBoldKeyValueString('Phone', value);
 
     // Fax
     else if (tag.indexOf('fax') > -1)
-        return Format.vprintf('Fax: %s', [ value ]);
+        return getBoldKeyValueString('Fax', value);
 
     // Wikipedia Articles
     else if (tag.indexOf('wikipedia') > -1) {
         const WIKI_URL = 'http://www.wikipedia.org/wiki/';
-        let wikiLink = '<a href="%s">Wikipedia Article</a>';
+        let wikiLink = '<a href="%s" title="Wikipedia Article">Wikipedia Article</a>';
         if (tag === 'wikipedia')
-            return GLib.markup_escape_text(Format.vprintf(wikiLink, [ WIKI_URL + value ]), -1);
+            return getURL(WIKI_URL + value, 'Wikipedia Article');
         let strings = tag.split(':');
         if (strings[0] === 'wikipedia') {
             value = WIKI_URL + strings[strings.length - 1] + ':' + value || WIKI_URL + value;
-            return GLib.markup_escape_text(Format.vprintf(wikiLink, [ value ]), -1);
+            return getURL(value, 'Wikipedia Article');
         }
         return '';
     }
@@ -117,8 +132,8 @@ function prettifyOSMTag(tag, value) {
             return '';
     }
 
-    // Just return the 'tag => value' string
-    return tag + ' => ' + value;
+    // Just return the 'tag: value' string
+    return getBoldKeyValueString(tag, value);
 }
 
 // Returns the place name if available in tags else Unknows
@@ -161,10 +176,10 @@ const POIBubble = new Lang.Class({
         }
 
         content.forEach(function(c) {
-            let label = new Gtk.Label({ label: c,
-                                        visible: true,
-                                        halign: Gtk.Align.START });
-            label.set_markup(true);
+            let label = new Gtk.Label({ visible: true,
+                                        halign: Gtk.Align.START,
+                                        use_markup: true });
+            label.set_markup(c);
             ui.boxRight.pack_start(label, false, true, 0);
         });
 

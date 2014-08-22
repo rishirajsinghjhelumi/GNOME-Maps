@@ -118,8 +118,8 @@ const POIMarkerLayer = new Lang.Class({
                 return;
 
         let places = this._cache.get(tile);
-        places = places.map(Place.newFromOverpass);
         places.forEach((function(place) {
+            place = Place.newFromOverpass(place);
             let poiMarker = new POIMarker.POIMarker({ place: place,
                                                       mapView: this._mapView });
             if (this._mapView.view.zoom_level >= MIN_POI_DISPLAY_ZOOM_LEVEL)
