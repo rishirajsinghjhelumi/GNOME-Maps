@@ -119,8 +119,7 @@ const POIMarkerLayer = new Lang.Class({
 
         let places = this._cache.get(tile);
         places.forEach((function(place) {
-            place = Place.newFromOverpass(place);
-            let poiMarker = new POIMarker.POIMarker({ place: place,
+            let poiMarker = new POIMarker.POIMarker({ place: Place.newFromOverpass(place),
                                                       mapView: this._mapView });
             if (this._mapView.view.zoom_level >= MIN_POI_DISPLAY_ZOOM_LEVEL)
                 this.add_marker(poiMarker);
@@ -174,10 +173,12 @@ const POIMarkerLayer = new Lang.Class({
     },
 
     _setRendered: function(tile) {
-        this._renderedTiles[(tile.get_x() + '/' + tile.get_y())] = true;
+        let count = 1 << this._mapView.view.zoom_level;
+        this._renderedTiles[tile.y * count + tile.x] = true;
     },
 
     _isRendered: function(tile) {
-        return ((tile.get_x() + '/' + tile.get_y()) in this._renderedTiles);
+        let count = 1 << this._mapView.view.zoom_level;
+        return ((tile.y * count + tile.x) in this._renderedTiles);
     }
 });

@@ -26,7 +26,6 @@ const GLib = imports.gi.GLib;
 
 const MapBubble = imports.mapBubble;
 const Place = imports.place;
-const HTTP = imports.http;
 const Utils = imports.utils;
 
 const _UNKNOWN = 'Unknown';
@@ -108,7 +107,7 @@ function prettifyOSMTag(tag, value) {
     else if (tag.indexOf('fax') > -1)
         return getBoldKeyValueString('Fax', value);
 
-    // Wikipedia Articles
+    // Wikipedia Article
     else if (tag.indexOf('wikipedia') > -1) {
         const WIKI_URL = 'http://www.wikipedia.org/wiki/';
         if (tag === 'wikipedia')
@@ -168,10 +167,12 @@ const POIBubble = new Lang.Class({
         ui.labelTitle.label = getPlaceNameFromPlace(place);
 
         let content = [];
-        for (let tag in place.tags) {
-            let str = prettifyOSMTag(tag, place.tags[tag]);
-            if (str !== '')
-                content.push(str);
+        if (place.tags) {
+            for (let tag in place.tags) {
+                let str = prettifyOSMTag(tag, place.tags[tag]);
+                if (str !== '')
+                    content.push(str);
+            }
         }
 
         content.forEach(function(c) {
