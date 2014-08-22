@@ -22,6 +22,7 @@ const Lang = imports.lang;
 
 const Gtk = imports.gi.Gtk;
 const Format = imports.format;
+const GLib = imports.gi.GLib;
 
 const MapBubble = imports.mapBubble;
 const Place = imports.place;
@@ -43,7 +44,8 @@ const ignoredTags = new Set([
     'ref', 'note', 'maxspeed',
     'layer', 'barrier', 'tracktype',
     'type', 'operator', 'height',
-    'admin_level', 'voltage', 'wood'
+    'admin_level', 'voltage', 'wood',
+    'route_ref'
 ]);
 
 // Ignore codes like 'KSJ2:*', 'osak:*' etc
@@ -71,9 +73,17 @@ function prettifyOSMTag(tag, value) {
     else if (tag === 'ele')
         return Format.vprintf('Elevation: %s', [ value ]);
 
+    // Start Date
+    else if (tag === 'start_date')
+        return Format.vprintf('Started: %s', [ value ]);
+
     // Website
-    else if (tag.indexOf('website') > -1)
-        return Format.vprintf('<a href="%s">Website</a>', [ value ]);
+    else if (tag.indexOf('website') > -1 || tag === 'url')
+        return GLib.markup_escape_text(Format.vprintf('<a href="%s">Website</a>', [ value ]), -1);
+
+    // Email
+    else if (tag.indexOf('email') > -1)
+        return Format.vprintf('Email: %s', [ value ]);
 
     // Phone
     else if (tag.indexOf('phone') > -1)
@@ -83,20 +93,16 @@ function prettifyOSMTag(tag, value) {
     else if (tag.indexOf('fax') > -1)
         return Format.vprintf('Fax: %s', [ value ]);
 
-    // Start Date
-    else if (tag === 'start_date')
-        return Format.vprintf('Started: %s', [ value ]);
-
     // Wikipedia Articles
     else if (tag.indexOf('wikipedia') > -1) {
         const WIKI_URL = 'http://www.wikipedia.org/wiki/';
         let wikiLink = '<a href="%s">Wikipedia Article</a>';
         if (tag === 'wikipedia')
-            return Format.vprintf(wikiLink, [ WIKI_URL + value ]);
+            return GLib.markup_escape_text(Format.vprintf(wikiLink, [ WIKI_URL + value ]), -1);
         let strings = tag.split(':');
         if (strings[0] === 'wikipedia') {
-            return Format.vprintf(wikiLink, [ WIKI_URL + strings[strings.length - 1] + ':' + value ||
-                                              WIKI_URL + value ]);
+            value = WIKI_URL + strings[strings.length - 1] + ':' + value || WIKI_URL + value;
+            return GLib.markup_escape_text(Format.vprintf(wikiLink, [ value ]), -1);
         }
         return '';
     }
@@ -158,6 +164,7 @@ const POIBubble = new Lang.Class({
             let label = new Gtk.Label({ label: c,
                                         visible: true,
                                         halign: Gtk.Align.START });
+            label.set_markup(true);
             ui.boxRight.pack_start(label, false, true, 0);
         });
 
