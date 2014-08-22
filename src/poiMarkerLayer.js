@@ -136,10 +136,10 @@ const POIMarkerLayer = new Lang.Class({
         let bbox = view.get_bounding_box();
         let size = source.get_tile_size();
 
-        let minX = Math.floor( source.get_x(zoom, bbox.left) / size );
-        let minY = Math.floor( source.get_y(zoom, bbox.top) / size );
-        let maxX = Math.floor( source.get_x(zoom, bbox.right) / size );
-        let maxY = Math.floor( source.get_y(zoom, bbox.bottom) / size );
+        let minX = Math.floor(source.get_x(zoom, bbox.left) / size);
+        let minY = Math.floor(source.get_y(zoom, bbox.top) / size);
+        let maxX = Math.floor(source.get_x(zoom, bbox.right) / size);
+        let maxY = Math.floor(source.get_y(zoom, bbox.bottom) / size);
 
         let tiles = [];
         for (let x = minX; x <= maxX ; x++) {
@@ -155,7 +155,6 @@ const POIMarkerLayer = new Lang.Class({
     },
 
     _onViewMoved: function() {
-
         if (this._mapView.view.zoom_level < MIN_POI_DISPLAY_ZOOM_LEVEL)
             return;
 

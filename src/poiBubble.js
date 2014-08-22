@@ -21,12 +21,113 @@
 const Lang = imports.lang;
 
 const Gtk = imports.gi.Gtk;
+const Format = imports.format;
 
 const MapBubble = imports.mapBubble;
 const Place = imports.place;
+const HTTP = imports.http;
 const Utils = imports.utils;
 
+const _UNKNOWN = 'Unknown';
 const _PLACE_ICON_SIZE = 48;
+
+/* Information regarding all the keys could be found at:
+ * http://taginfo.openstreetmap.org/keys
+ */
+
+// The tags that should be not be dislayed to the user
+const ignoredTags = new Set([
+    'name', 'source', 'access',
+    'lanes', 'created_by', 'power',
+    'wall', 'surface', 'oneway',
+    'ref', 'note', 'maxspeed',
+    'layer', 'barrier', 'tracktype',
+    'type', 'operator', 'height',
+    'admin_level', 'voltage', 'wood'
+]);
+
+// Ignore codes like 'KSJ2:*', 'osak:*' etc
+const ignoredCodes = [
+    'source:', 'ksj2:', 'osak:',
+    'ngbe:', 'yh:', 'ref:',
+    'nhd:', '3dshapes:', 'nycdoitt:',
+    'linz:', 'clc:', 'massgis:',
+    'canvec:', 'wroclawgis:', 'it:',
+    'fhrs:'
+];
+
+function prettifyOSMTag(tag, value) {
+    tag = tag.toLowerCase();
+
+    // Don't display these tags
+    if (tag in Place.placeTypes)
+        return '';
+
+    // Don't display ignored tags
+    else if (ignoredTags.has(tag))
+        return '';
+
+    // Elevation
+    else if (tag === 'ele')
+        return Format.vprintf('Elevation: %s', [ value ]);
+
+    // Website
+    else if (tag.indexOf('website') > -1)
+        return Format.vprintf('<a href="%s">Website</a>', [ value ]);
+
+    // Phone
+    else if (tag.indexOf('phone') > -1)
+        return Format.vprintf('Phone: %s', [ value ]);
+
+    // Fax
+    else if (tag.indexOf('fax') > -1)
+        return Format.vprintf('Fax: %s', [ value ]);
+
+    // Start Date
+    else if (tag === 'start_date')
+        return Format.vprintf('Started: %s', [ value ]);
+
+    // Wikipedia Articles
+    else if (tag.indexOf('wikipedia') > -1) {
+        const WIKI_URL = 'http://www.wikipedia.org/wiki/';
+        let wikiLink = '<a href="%s">Wikipedia Article</a>';
+        if (tag === 'wikipedia')
+            return Format.vprintf(wikiLink, [ WIKI_URL + value ]);
+        let strings = tag.split(':');
+        if (strings[0] === 'wikipedia') {
+            return Format.vprintf(wikiLink, [ WIKI_URL + strings[strings.length - 1] + ':' + value ||
+                                              WIKI_URL + value ]);
+        }
+        return '';
+    }
+
+    // Don't display notes
+    else if (tag.indexOf('note') > -1)
+        return '';
+
+    // Don't display tags that have ignored codes
+    for (let i = 0; i < ignoredCodes.length; i++) {
+        if (tag.indexOf(ignoredCodes[i]) > -1)
+            return '';
+    }
+
+    // Just return the 'tag => value' string
+    return tag + ' => ' + value;
+}
+
+// Returns the place name if available in tags else Unknows
+function getPlaceNameFromPlace(place) {
+    let name = place.name;
+    if (name !== _UNKNOWN)
+        return name;
+    if (place.tags) {
+        for (let tag in place.tags) {
+            if (tag.indexOf('name:') > -1)
+                return place.tags[tag];
+        }
+    }
+    return name;
+}
 
 const POIBubble = new Lang.Class({
     Name: 'POIBubble',
@@ -44,14 +145,13 @@ const POIBubble = new Lang.Class({
         Utils.load_icon(place.icon, _PLACE_ICON_SIZE, function(pixbuf) {
             ui.image.pixbuf = pixbuf;
         });
-        ui.labelTitle.label = place.name;
+        ui.labelTitle.label = getPlaceNameFromPlace(place);
 
         let content = [];
-        let tag = undefined;
-        for (tag in this.place.tags) {
-            if (tag in Place.placeTypes || tag === 'name')
-                continue;
-            content.push(tag + ' = ' + this.place.tags[tag]);
+        for (let tag in place.tags) {
+            let str = prettifyOSMTag(tag, place.tags[tag]);
+            if (str !== '')
+                content.push(str);
         }
 
         content.forEach(function(c) {

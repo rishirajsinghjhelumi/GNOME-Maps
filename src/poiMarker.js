@@ -51,7 +51,7 @@ const POIMarker = new Lang.Class({
 
     get anchor() {
         return { x: Math.floor(this.width / 2),
-                 y: this.height - 3 };
+                 y: this.height };
     },
 
     _createBubble: function() {
