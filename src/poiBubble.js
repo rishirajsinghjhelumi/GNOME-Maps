@@ -111,7 +111,6 @@ function prettifyOSMTag(tag, value) {
     // Wikipedia Articles
     else if (tag.indexOf('wikipedia') > -1) {
         const WIKI_URL = 'http://www.wikipedia.org/wiki/';
-        let wikiLink = '<a href="%s" title="Wikipedia Article">Wikipedia Article</a>';
         if (tag === 'wikipedia')
             return getURL(WIKI_URL + value, 'Wikipedia Article');
         let strings = tag.split(':');
