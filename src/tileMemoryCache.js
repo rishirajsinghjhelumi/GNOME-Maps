@@ -21,8 +21,25 @@
 const Lang = imports.lang;
 
 const Format = imports.format;
+const GLib = imports.gi.GLib;
 
 const Champlain = imports.gi.Champlain;
+
+const Queue = new Lang.Class({
+    Name: 'Queue',
+
+    _init: function() {
+
+    },
+
+    enQueue: function() {
+
+    },
+
+    deQueue: function() {
+
+    }
+});
 
 const TileMemoryCache = new Lang.Class({
     Name: 'TileMemoryCache',
