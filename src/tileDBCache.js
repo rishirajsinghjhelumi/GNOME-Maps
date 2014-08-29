@@ -78,7 +78,7 @@ const TileDBCache = new Lang.Class({
                   this._encodeTileCoordinates(tile) ])
         );
 
-        return query.get_n_rows() === 0 ? false : true;
+        return ((query.get_n_rows() === 0) ? false : true);
     },
 
     _encodeTileCoordinates: function(tile) {
