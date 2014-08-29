@@ -134,7 +134,7 @@ function prettifyOSMTag(tag, value) {
     return getBoldKeyValueString(tag, value);
 }
 
-// Returns the place name if available in tags else Unknows
+// Returns the place name if available in tags else Unknown
 function getPlaceNameFromPlace(place) {
     let name = place.name;
     if (name !== _UNKNOWN)

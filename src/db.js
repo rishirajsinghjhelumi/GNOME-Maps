@@ -36,20 +36,14 @@ const DB = new Lang.Class({
     },
 
     _initDB: function() {
-        GLib.mkdir_with_parents(DB_LOCATION, 0777);
+        GLib.mkdir_with_parents(DB_LOCATION, parseInt('0766', 8));
 
-        // this._connection = new Gda.Connection ({
-        //     provider: Gda.Config.get_provider("SQLite"),
-        //     cnc_string:"DB_DIR=" + DB_LOCATION + ";DB_NAME=" + DB_NAME
-        // });
-        // this._connection.open();
-
-        this._connection = Gda.Connection.open_from_string(
-            "SQLite",
-            "DB_DIR=" + DB_LOCATION + ";DB_NAME=" + DB_NAME,
-            '',
-            Gda.ConnectionOptions.NONE,
-            null );
+        this._connection = new Gda.Connection ({
+            provider: Gda.Config.get_provider('SQLite'),
+            cnc_string: Format.vprintf('DB_DIR=%s;DB_NAME=%s', [ DB_LOCATION,
+                                                                 DB_NAME ])
+        });
+        this._connection.open();
     },
 
     get connection() {
