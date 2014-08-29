@@ -44,6 +44,7 @@ const Path = imports.path;
 const Settings = imports.settings;
 const PlaceStore = imports.placeStore;
 const RouteService = imports.routeService;
+const DB = imports.db;
 
 // used globally
 let application = null;
@@ -53,6 +54,7 @@ let notificationManager = null;
 let routeService = null;
 let geoclue = null;
 let geocodeService = null;
+let db = null;
 
 const Application = new Lang.Class({
     Name: 'Application',
@@ -115,6 +117,7 @@ const Application = new Lang.Class({
         routeService   = new RouteService.GraphHopper();
         geoclue        = new Geoclue.Geoclue();
         geocodeService = new GeocodeService.GeocodeService();
+        db             = new DB.DB();
     },
 
     _createWindow: function() {

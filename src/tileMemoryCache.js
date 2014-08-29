@@ -25,34 +25,27 @@ const GLib = imports.gi.GLib;
 
 const Champlain = imports.gi.Champlain;
 
-const Queue = new Lang.Class({
-    Name: 'Queue',
+const Queue = imports.queue;
 
-    _init: function() {
-
-    },
-
-    enQueue: function() {
-
-    },
-
-    deQueue: function() {
-
-    }
-});
+const _DEFAULT_TILE_CACHE_SIZE = 200;
 
 const TileMemoryCache = new Lang.Class({
     Name: 'TileMemoryCache',
 
     _init: function(params) {
+        this._size = params.cacheSize || _DEFAULT_TILE_CACHE_SIZE;
+
+        this._queue = new Queue.Queue({ maxSize: this._size });
         this._cachedTiles = {};
     },
 
     store: function(tile, content) {
         this._cachedTiles[this._encodeTileCoordinates(tile)] = content;
+        this._queue.enQueue(this._encodeTileCoordinates(tile));
     },
 
     get: function(tile) {
+        this._queue.update(this._encodeTileCoordinates(tile));
         return this._cachedTiles[this._encodeTileCoordinates(tile)];
     },
 
@@ -61,6 +54,7 @@ const TileMemoryCache = new Lang.Class({
     },
 
     clean: function() {
+        this._queue.clean();
         this._cachedTiles = {};
     },
 

@@ -4,6 +4,7 @@
     <file>application.js</file>
     <file>config.js</file>
     <file>contextMenu.js</file>
+    <file>db.js</file>
     <file>epaf.js</file>
     <file>geoclue.js</file>
     <file>geocodeService.js</file>
@@ -26,6 +27,7 @@
     <file>poiBubble.js</file>
     <file>poiMarker.js</file>
     <file>poiMarkerLayer.js</file>
+    <file>queue.js</file>
     <file>route.js</file>
     <file>routeQuery.js</file>
     <file>routeService.js</file>
@@ -34,6 +36,7 @@
     <file>searchResultMarker.js</file>
     <file>settings.js</file>
     <file>sidebar.js</file>
+    <file>tileDBCache.js</file>
     <file>tileMemoryCache.js</file>
     <file>userLocationMarker.js</file>
     <file>userLocationBubble.js</file>

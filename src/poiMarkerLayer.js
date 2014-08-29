@@ -27,6 +27,7 @@ const Overpass = imports.overpass;
 const POIMarker = imports.poiMarker;
 const GeoMath = imports.geoMath;
 const TileMemoryCache = imports.tileMemoryCache;
+const TileDBCache = imports.tileDBCache;
 
 const MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
 
@@ -40,7 +41,8 @@ const POIMarkerLayer = new Lang.Class({
 
         this.parent(params);
 
-        this._cache = new TileMemoryCache.TileMemoryCache({});
+        // this._cache = new TileMemoryCache.TileMemoryCache({});
+        this._cache = new TileDBCache.TileDBCache({ tableName: 'poi-cache' });
         this._renderedTiles = {};
 
         this._initOverpass();
@@ -76,13 +78,11 @@ const POIMarkerLayer = new Lang.Class({
         let bboxes = tiles.map(GeoMath.bboxFromTile);
 
         let tilesContent = [];
-        for (let i = 0; i < bboxes.length; i++) {
-            tilesContent.push([]);
-        }
-
         pois.forEach((function(poi) {
             for (let i = 0; i < bboxes.length; i++) {
                 if (bboxes[i].covers(poi.lat, poi.lon)) {
+                    if (!tilesContent[i])
+                        tilesContent[i] = [];
                     tilesContent[i].push(poi);
                     break;
                 }
@@ -103,7 +103,7 @@ const POIMarkerLayer = new Lang.Class({
     _cacheTiles: function(tiles, tilesContent) {
         for (let i = 0; i < tiles.length; i++) {
             if (!this._cache.isCached(tiles[i]))
-                this._cache.store(tiles[i], tilesContent[i]);
+                this._cache.store(tiles[i], JSON.stringify(tilesContent[i]));
         }
     },
 
@@ -117,7 +117,7 @@ const POIMarkerLayer = new Lang.Class({
         if (this._isRendered(tile))
                 return;
 
-        let places = this._cache.get(tile);
+        let places = JSON.parse(this._cache.get(tile));
         places.forEach((function(place) {
             let poiMarker = new POIMarker.POIMarker({ place: Place.newFromOverpass(place),
                                                       mapView: this._mapView });
