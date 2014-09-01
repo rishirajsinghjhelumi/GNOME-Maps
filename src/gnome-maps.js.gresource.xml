@@ -33,6 +33,7 @@
     <file>searchResultMarker.js</file>
     <file>settings.js</file>
     <file>sidebar.js</file>
+    <file>tileDBCache.js</file>
     <file>tileMemoryCache.js</file>
     <file>userLocationMarker.js</file>
     <file>userLocationBubble.js</file>
