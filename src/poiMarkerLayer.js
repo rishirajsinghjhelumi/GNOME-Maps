@@ -20,6 +20,8 @@
 
 const Lang = imports.lang;
 
+const GLib = imports.gi.GLib;
+
 const Champlain = imports.gi.Champlain;
 
 const Place = imports.place;
@@ -42,9 +44,10 @@ const POIMarkerLayer = new Lang.Class({
 
         this.parent(params);
 
-        // this._cache = new TileMemoryCache.TileMemoryCache({});
-        this._cache = new TileDBCache.TileDBCache({ tableName: 'poi_cache' });
+        this._memoryCache = new TileMemoryCache.TileMemoryCache({});
+        this._DBCache = new TileDBCache.TileDBCache({ tableName: 'poi_cache' });
         this._renderedTiles = {};
+        this._queries = {};
 
         this._initOverpass();
         this._initSignals();
@@ -71,65 +74,7 @@ const POIMarkerLayer = new Lang.Class({
         view.connect('notify::zoom-level', (function() {
             this._renderedTiles = {};
             this.remove_all();
-            this._onViewMoved();
         }).bind(this));
-    },
-
-    _clusterPOIsInTiles: function(tiles, pois) {
-        let bboxes = tiles.map(GeoMath.bboxFromTile);
-
-        let tilesContent = [];
-        for (let i = 0; i < bboxes.length; i++) {
-            tilesContent[i] = [];
-        }
-
-        pois.forEach((function(poi) {
-            for (let i = 0; i < bboxes.length; i++) {
-                if (bboxes[i].covers(poi.lat, poi.lon)) {
-                    tilesContent[i].push(poi);
-                    break;
-                }
-            }
-        }).bind(this));
-
-        return tilesContent;
-    },
-
-    _allCached: function(tiles) {
-        for (let i = 0; i < tiles.length; i++) {
-            if (!this._cache.isCached(tiles[i]))
-                return false;
-        }
-        return true;
-    },
-
-    _cacheTiles: function(tiles, tilesContent) {
-        for (let i = 0; i < tiles.length; i++) {
-            if (!this._cache.isCached(tiles[i])) {
-                this._cache.store(tiles[i], JSON.stringify(tilesContent[i]));
-            }
-        }
-    },
-
-    _loadTiles: function(tiles) {
-        tiles.forEach((function(tile) {
-            this._displayContent(tile);
-        }).bind(this));
-    },
-
-    _displayContent: function(tile) {
-        if (this._isRendered(tile))
-                return;
-
-        let places = JSON.parse(this._cache.get(tile));
-        places.forEach((function(place) {
-            let poiMarker = new POIMarker.POIMarker({ place: Place.newFromOverpass(place),
-                                                      mapView: this._mapView });
-            if (this._mapView.view.zoom_level >= MIN_POI_DISPLAY_ZOOM_LEVEL)
-                this.add_marker(poiMarker);
-        }).bind(this));
-
-        this._setRendered(tile);
     },
 
     _getVisibleTiles: function() {
@@ -157,22 +102,68 @@ const POIMarkerLayer = new Lang.Class({
         return tiles;
     },
 
+    _loadTile: function(tile) {
+        // Check if rendered
+        if (this._isRendered(tile))
+            return;
+
+        // Check if already queried for tile
+        if (this._isQueried(tile))
+            return;
+
+        // Load tile from MemoryCache if available
+        if (this._memoryCache.isCached(tile)) {
+            this._displayTile(this._memoryCache.get(tile));
+            this._setRendered(tile);
+            return;
+        }
+
+        // Load tile from DBCache if available
+        if (this._DBCache.isCached(tile)) {
+            this._displayTile(JSON.parse(unescape(this._DBCache.get(tile))));
+            this._setRendered(tile);
+            return;
+        }
+
+        // Load tile from Server
+        let bbox = GeoMath.bboxFromTile(tile);
+        this._setQueried(tile);
+        this._overpassQuery.send(bbox, (function(pois) {
+            this._removeQuery(tile);
+
+            // Cache tile in memory
+            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, (function() {
+                this._memoryCache.store(tile, pois);
+            }).bind(this));
+
+            // Cache tile in database
+            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, (function() {
+                this._DBCache.store( tile, escape(JSON.stringify(pois)));
+            }).bind(this));
+
+            this._displayTile(pois);
+            this._setRendered(tile);
+        }).bind(this));
+    },
+
+    _displayTile: function(places) {
+        places.forEach((function(place) {
+            let poiMarker = new POIMarker.POIMarker({ place: Place.newFromOverpass(place),
+                                                      mapView: this._mapView });
+            if (this._mapView.view.zoom_level >= MIN_POI_DISPLAY_ZOOM_LEVEL)
+                this.add_marker(poiMarker);
+        }).bind(this));
+    },
+
     _onViewMoved: function() {
         if (this._mapView.view.zoom_level < MIN_POI_DISPLAY_ZOOM_LEVEL)
             return;
 
         let tiles = this._getVisibleTiles();
-
-        if (this._allCached(tiles)) {
-            this._loadTiles(tiles);
-            return;
-        }
-
-        let bbox = this._mapView.view.get_bounding_box();
-        this._overpassQuery.send(bbox, (function(pois) {
-            let tilesContent = this._clusterPOIsInTiles(tiles, pois);
-            this._cacheTiles(tiles, tilesContent);
-            this._loadTiles(tiles);
+        tiles.forEach((function(tile) {
+            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, (function() {
+                this._loadTile(tile);
+            }).bind(this));
         }).bind(this));
     },
 
@@ -184,5 +175,20 @@ const POIMarkerLayer = new Lang.Class({
     _isRendered: function(tile) {
         let count = 1 << this._mapView.view.zoom_level;
         return ((tile.y * count + tile.x) in this._renderedTiles);
+    },
+
+    _setQueried: function(tile) {
+        let count = 1 << this._mapView.view.zoom_level;
+        this._queries[tile.y * count + tile.x] = true;
+    },
+
+    _removeQuery: function(tile) {
+        let count = 1 << this._mapView.view.zoom_level;
+        delete this._queries[tile.y * count + tile.x];
+    },
+
+    _isQueried: function(tile) {
+        let count = 1 << this._mapView.view.zoom_level;
+        return ((tile.y * count + tile.x) in this._queries);  
     }
 });

@@ -23,8 +23,6 @@ const Lang = imports.lang;
 const Format = imports.format;
 const GLib = imports.gi.GLib;
 
-const Champlain = imports.gi.Champlain;
-
 const Queue = imports.queue;
 
 const _DEFAULT_TILE_CACHE_SIZE = 200;
@@ -59,8 +57,8 @@ const TileMemoryCache = new Lang.Class({
     },
 
     _encodeTileCoordinates: function(tile) {
-        return Format.vprintf('%s/%s/%s', [ tile.get_zoom_level(),
-                                            tile.get_x(),
-                                            tile.get_y() ]);
+        return Format.vprintf('%s/%s/%s', [ tile.zoom_level,
+                                            tile.x,
+                                            tile.y ]);
     }
 });

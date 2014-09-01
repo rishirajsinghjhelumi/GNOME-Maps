@@ -52,6 +52,9 @@ const TileDBCache = new Lang.Class({
         if (typeof content !== 'string')
             throw 'Content type should be string!!!';
 
+        if (this.isCached(tile))
+            return;
+
         let stmt = new Gda.SqlBuilder({ stmt_type: Gda.SqlStatementType.INSERT });
         stmt.set_table(this._tableName);
         stmt.add_field_value_as_gvalue('tile', this._encodeTileCoordinates(tile));
@@ -61,7 +64,7 @@ const TileDBCache = new Lang.Class({
 
     get: function(tile) {
         let query = this._connection.execute_select_command(
-            Format.vprintf('SELECT places FROM %s WHERE tile = %s',
+            Format.vprintf('SELECT places FROM %s WHERE tile = "%s"',
                 [ this._tableName,
                   this._encodeTileCoordinates(tile) ])
         );
@@ -73,18 +76,20 @@ const TileDBCache = new Lang.Class({
 
     isCached: function(tile) {
         let query = this._connection.execute_select_command(
-            Format.vprintf('SELECT places FROM %s WHERE tile = %s',
+            Format.vprintf('SELECT places FROM %s WHERE tile = "%s"',
                 [ this._tableName,
                   this._encodeTileCoordinates(tile) ])
         );
 
-        return ((query.get_n_rows() === 0) ? false : true);
+        if (query.get_n_rows() === 0)
+            return false;
+        return true;
     },
 
     _encodeTileCoordinates: function(tile) {
-        return Format.vprintf('%s/%s/%s', [ tile.get_zoom_level(),
-                                            tile.get_x(),
-                                            tile.get_y() ]);
+        return Format.vprintf('%s/%s/%s', [ tile.zoom_level,
+                                            tile.x,
+                                            tile.y ]);
     }
 
 });
