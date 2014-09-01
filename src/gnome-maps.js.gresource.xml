@@ -20,6 +20,7 @@
     <file>notificationManager.js</file>
     <file>overpass.js</file>
     <file>path.js</file>
+    <file>place.js</file>
     <file>placeEntry.js</file>
     <file>placeStore.js</file>
     <file>route.js</file>
