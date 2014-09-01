@@ -138,7 +138,7 @@ const POIMarkerLayer = new Lang.Class({
 
             // Cache tile in database
             GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, (function() {
-                this._DBCache.store( tile, escape(JSON.stringify(pois)));
+                this._DBCache.store(tile, escape(JSON.stringify(pois)));
             }).bind(this));
 
             this._displayTile(pois);

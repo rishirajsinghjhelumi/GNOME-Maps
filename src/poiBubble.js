@@ -35,27 +35,100 @@ const _PLACE_ICON_SIZE = 48;
  * http://taginfo.openstreetmap.org/keys
  */
 
-// The tags that should be not be dislayed to the user
-const ignoredTags = new Set([
-    'name', 'source', 'access',
-    'lanes', 'created_by', 'power',
-    'wall', 'surface', 'oneway',
-    'ref', 'note', 'maxspeed',
-    'layer', 'barrier', 'tracktype',
-    'type', 'operator', 'height',
-    'admin_level', 'voltage', 'wood',
-    'route_ref'
-]);
-
-// Ignore codes like 'KSJ2:*', 'osak:*' etc
-const ignoredCodes = [
-    'source:', 'name:', 'osak:',
-    'ngbe:', 'yh:', 'ref:',
-    'nhd:', '3dshapes:', 'nycdoitt:',
-    'linz:', 'clc:', 'massgis:',
-    'canvec:', 'wroclawgis:', 'it:',
-    'fhrs:', 'ksj2:'
-];
+// The tags to be shown to the user
+const displayTags = {
+    'postal_code':{
+        tags: new Set([
+            'addr:postcode', 'postal_code'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString('Postal Code', value);
+        }
+    },
+    'street':{
+        tags: new Set([
+            'addr:street', 'addr:street:name', 'addr:streetnumber',
+            'naptan:Street', 'osak:street', 'osak:street_no',
+            'kms:street_no', 'kms:street_name'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString('Street', value);
+        }
+    },
+    'city':{
+        tags: new Set([
+            'addr:city', 'kms:city_name'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString('City', value);
+        }
+    },
+    'country':{
+        tags: new Set([
+            'addr:country'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString('Country', value);
+        }
+    },
+    'phone':{
+        tags: new Set([
+            'phone', 'contact:phone'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString('Phone', value);
+        }
+    },
+    'fax':{
+        tags: new Set([
+            'fax', 'contact:fax'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString('Fax', value);
+        }
+    },
+    'email':{
+        tags: new Set([
+            'email', 'contact:email'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString('Email', value);
+        }
+    },
+    'website': {
+        tags: new Set([
+            'website', 'contact:website', 'heritage:website',
+            'website2', 'website:official', 'url'
+        ]),
+        formatter: function(value) {
+            return getURL(value, 'Website');
+        }
+    },
+    'opening_hours':{
+        tags: new Set([
+            'opening_hours'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString('Opening Hours', value);
+        }
+    },
+    'elevation':{
+        tags: new Set([
+            'ele'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString('Elevation', value);
+        }
+    },
+    'wheelchair':{
+        tags: new Set([
+            'wheelchair'
+        ]),
+        formatter: function(value) {
+            return getBoldText('Wheelchair available');
+        }
+    }
+};
 
 function getBoldText(text) {
     return Format.vprintf('<b>%s</b>', [ GLib.markup_escape_text(text, -1) ]);
@@ -72,66 +145,39 @@ function getBoldKeyValueString(key, value) {
                                       value ]);
 }
 
+// Wikipedia Article Formatter
+function getWikipediaLink(tag, value) {
+    const WIKI_URL = 'http://www.wikipedia.org/wiki/';
+
+    if (tag === 'wikipedia')
+        return getURL(WIKI_URL + value, 'Wikipedia Article');
+
+    let strings = tag.split(':');
+    if (strings[0] === 'wikipedia') {
+        value = WIKI_URL + strings[strings.length - 1] + ':' + value || WIKI_URL + value;
+        return getURL(value, 'Wikipedia Article');
+    }
+
+    return null;
+}
+
 function prettifyOSMTag(tag, value) {
     tag = tag.toLowerCase();
 
-    // Don't display these tags
-    if (tag in Place.placeTypes)
-        return '';
+    for (let info in displayTags) {
+        let tags = displayTags[info].tags;
+        let formatter = displayTags[info].formatter;
 
-    // Don't display ignored tags
-    else if (ignoredTags.has(tag))
-        return '';
-
-    // Elevation
-    else if (tag === 'ele')
-        return getBoldKeyValueString('Elevation', value);
-
-    // Start Date
-    else if (tag === 'start_date')
-        return getBoldKeyValueString('Started', value);
-
-    // Website
-    else if (tag.indexOf('website') > -1 || tag === 'url')
-        return getURL(value, 'Website');
-
-    // Email
-    else if (tag.indexOf('email') > -1)
-        return getBoldKeyValueString('Email', value);
-
-    // Phone
-    else if (tag.indexOf('phone') > -1)
-        return getBoldKeyValueString('Phone', value);
-
-    // Fax
-    else if (tag.indexOf('fax') > -1)
-        return getBoldKeyValueString('Fax', value);
-
-    // Wikipedia Article
-    else if (tag.indexOf('wikipedia') > -1) {
-        const WIKI_URL = 'http://www.wikipedia.org/wiki/';
-        if (tag === 'wikipedia')
-            return getURL(WIKI_URL + value, 'Wikipedia Article');
-        let strings = tag.split(':');
-        if (strings[0] === 'wikipedia') {
-            value = WIKI_URL + strings[strings.length - 1] + ':' + value || WIKI_URL + value;
-            return getURL(value, 'Wikipedia Article');
+        if (tags.has(tag)) {
+            return formatter(value);
         }
-        return '';
     }
 
-    // Don't display notes
-    else if (tag.indexOf('note') > -1)
-        return '';
-
-    // Don't display tags that have ignored codes
-    for (let i = 0; i < ignoredCodes.length; i++) {
-        if (tag.indexOf(ignoredCodes[i]) > -1)
-            return '';
+    if (tag.indexOf('wikipedia') > -1) {
+        return getWikipediaLink(tag, value);
     }
 
-    // Just return the 'tag: value' string
-    return getBoldKeyValueString(tag, value);
+    return null;
 }
 
 // Returns the place name if available in tags else Unknown
@@ -170,7 +216,7 @@ const POIBubble = new Lang.Class({
         if (place.tags) {
             for (let tag in place.tags) {
                 let str = prettifyOSMTag(tag, place.tags[tag]);
-                if (str !== '')
+                if (str !== null)
                     content.push(str);
             }
         }
