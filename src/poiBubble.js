@@ -28,145 +28,17 @@ const MapBubble = imports.mapBubble;
 const Place = imports.place;
 const Utils = imports.utils;
 
+const _ = imports.gettext.gettext;
+
 const _UNKNOWN = 'Unknown';
 const _PLACE_ICON_SIZE = 48;
-
-/* Information regarding all the keys could be found at:
- * http://taginfo.openstreetmap.org/keys
- */
-
-// The tags to be shown to the user
-const displayTags = {
-    'postal_code':{
-        tags: new Set([
-            'addr:postcode', 'postal_code'
-        ]),
-        formatter: function(value) {
-            return getBoldKeyValueString('Postal Code', value);
-        }
-    },
-    'street':{
-        tags: new Set([
-            'addr:street', 'addr:street:name', 'addr:streetnumber',
-            'naptan:Street', 'osak:street', 'osak:street_no',
-            'kms:street_no', 'kms:street_name'
-        ]),
-        formatter: function(value) {
-            return getBoldKeyValueString('Street', value);
-        }
-    },
-    'city':{
-        tags: new Set([
-            'addr:city', 'kms:city_name'
-        ]),
-        formatter: function(value) {
-            return getBoldKeyValueString('City', value);
-        }
-    },
-    'country':{
-        tags: new Set([
-            'addr:country'
-        ]),
-        formatter: function(value) {
-            return getBoldKeyValueString('Country', value);
-        }
-    },
-    'phone':{
-        tags: new Set([
-            'phone', 'contact:phone'
-        ]),
-        formatter: function(value) {
-            return getBoldKeyValueString('Phone', value);
-        }
-    },
-    'fax':{
-        tags: new Set([
-            'fax', 'contact:fax'
-        ]),
-        formatter: function(value) {
-            return getBoldKeyValueString('Fax', value);
-        }
-    },
-    'email':{
-        tags: new Set([
-            'email', 'contact:email'
-        ]),
-        formatter: function(value) {
-            return getBoldKeyValueString('Email', value);
-        }
-    },
-    'website': {
-        tags: new Set([
-            'website', 'contact:website', 'heritage:website',
-            'website2', 'website:official', 'url'
-        ]),
-        formatter: function(value) {
-            return getURL(value, 'Website');
-        }
-    },
-    'opening_hours':{
-        tags: new Set([
-            'opening_hours'
-        ]),
-        formatter: function(value) {
-            return getBoldKeyValueString('Opening Hours', value);
-        }
-    },
-    'elevation':{
-        tags: new Set([
-            'ele'
-        ]),
-        formatter: function(value) {
-            return getBoldKeyValueString('Elevation', value);
-        }
-    },
-    'wheelchair':{
-        tags: new Set([
-            'wheelchair'
-        ]),
-        formatter: function(value) {
-            return getBoldText('Wheelchair available');
-        }
-    }
-};
-
-function getBoldText(text) {
-    return Format.vprintf('<b>%s</b>', [ GLib.markup_escape_text(text, -1) ]);
-}
-
-function getURL(link, title) {
-    return Format.vprintf('<a href="%s" title="%s">%s</a>', [ GLib.markup_escape_text(link, -1),
-                                                              title,
-                                                              getBoldText(title) ]);
-}
-
-function getBoldKeyValueString(key, value) {
-    return Format.vprintf('%s: %s', [ getBoldText(key),
-                                      value ]);
-}
-
-// Wikipedia Article Formatter
-function getWikipediaLink(tag, value) {
-    const WIKI_URL = 'http://www.wikipedia.org/wiki/';
-
-    if (tag === 'wikipedia')
-        return getURL(WIKI_URL + value, 'Wikipedia Article');
-
-    let strings = tag.split(':');
-    if (strings[0] === 'wikipedia') {
-        value = WIKI_URL + strings[strings.length - 1] + ':' + value || WIKI_URL + value;
-        return getURL(value, 'Wikipedia Article');
-    }
-
-    return null;
-}
 
 function prettifyOSMTag(tag, value) {
     tag = tag.toLowerCase();
 
-    for (let info in displayTags) {
-        let tags = displayTags[info].tags;
-        let formatter = displayTags[info].formatter;
+    for (let info in Place.displayTags) {
+        let tags = Place.displayTags[info].tags;
+        let formatter = Place.displayTags[info].formatter;
 
         if (tags.has(tag)) {
             return formatter(value);
@@ -174,7 +46,7 @@ function prettifyOSMTag(tag, value) {
     }
 
     if (tag.indexOf('wikipedia') > -1) {
-        return getWikipediaLink(tag, value);
+        return Place.getWikipediaLink(tag, value);
     }
 
     return null;

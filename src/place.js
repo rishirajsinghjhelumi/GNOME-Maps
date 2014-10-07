@@ -22,8 +22,12 @@ const Lang = imports.lang;
 
 const Geocode = imports.gi.GeocodeGlib;
 const Gio = imports.gi.Gio;
+const Format = imports.format;
+const GLib = imports.gi.GLib;
 
-const _UNKNOWN = 'Unknown';
+const _ = imports.gettext.gettext;
+
+const _UNKNOWN = _('Unknown');
 const _PLACE_DEFAULT_ICON = 'poi-marker';
 
 const placeTypes = {
@@ -93,6 +97,137 @@ const placeTypes = {
     },
     'highway' : {
         'bus_stop' : 'poi-bus-stop',
+    }
+};
+
+/* Information regarding all the keys could be found at:
+ * http://taginfo.openstreetmap.org/keys
+ */
+
+// Formatter functions
+function getBoldText(text) {
+    return Format.vprintf('<b>%s</b>', [ GLib.markup_escape_text(text, -1) ]);
+}
+
+function getURL(link, title) {
+    return Format.vprintf('<a href="%s" title="%s">%s</a>', [ GLib.markup_escape_text(link, -1),
+                                                              title,
+                                                              getBoldText(title) ]);
+}
+
+function getBoldKeyValueString(key, value) {
+    return Format.vprintf('%s: %s', [ getBoldText(key),
+                                      value ]);
+}
+
+// Wikipedia Article Formatter
+function getWikipediaLink(tag, value) {
+    const WIKI_URL = 'http://www.wikipedia.org/wiki/';
+
+    if (tag === 'wikipedia')
+        return getURL(WIKI_URL + value, _('Wikipedia Article'));
+
+    let strings = tag.split(':');
+    if (strings[0] === 'wikipedia') {
+        value = WIKI_URL + strings[strings.length - 1] + ':' + value || WIKI_URL + value;
+        return getURL(value, _('Wikipedia Article'));
+    }
+
+    return null;
+}
+
+// The tags to be shown to the user
+const displayTags = {
+    'postal_code':{
+        tags: new Set([
+            'addr:postcode', 'postal_code'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString(_('Postal Code'), value);
+        }
+    },
+    'street':{
+        tags: new Set([
+            'addr:street', 'addr:street:name', 'addr:streetnumber',
+            'naptan:Street', 'osak:street', 'osak:street_no',
+            'kms:street_no', 'kms:street_name'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString(_('Street'), value);
+        }
+    },
+    'city':{
+        tags: new Set([
+            'addr:city', 'kms:city_name'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString(_('City'), value);
+        }
+    },
+    'country':{
+        tags: new Set([
+            'addr:country'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString(_('Country'), value);
+        }
+    },
+    'phone':{
+        tags: new Set([
+            'phone', 'contact:phone'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString(_('Phone'), value);
+        }
+    },
+    'fax':{
+        tags: new Set([
+            'fax', 'contact:fax'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString(_('Fax'), value);
+        }
+    },
+    'email':{
+        tags: new Set([
+            'email', 'contact:email'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString(_('Email'), value);
+        }
+    },
+    'website': {
+        tags: new Set([
+            'website', 'contact:website', 'heritage:website',
+            'website2', 'website:official', 'url'
+        ]),
+        formatter: function(value) {
+            return getURL(value, _('Website'));
+        }
+    },
+    'opening_hours':{
+        tags: new Set([
+            'opening_hours'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString(_('Opening Hours'), value);
+        }
+    },
+    'elevation':{
+        tags: new Set([
+            'ele'
+        ]),
+        formatter: function(value) {
+            return getBoldKeyValueString(_('Elevation'), value);
+        }
+    },
+    'wheelchair':{
+        tags: new Set([
+            'wheelchair'
+        ]),
+        formatter: function(value) {
+            return getBoldText(_('Wheelchair available'));
+        }
     }
 };
 
