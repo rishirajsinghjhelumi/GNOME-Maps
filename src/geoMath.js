@@ -41,13 +41,13 @@ function tileToLongitude(zoom, x) {
 
 function longitudeToTile(longitude, zoom) {
     let n = (1 << zoom) * 1.0;
-    return Math.floor( (longitude + 180.0) / 360.0 * n);
+    return Math.floor((longitude + 180.0) / 360.0 * n);
 }
 
 function latitudeToTile(latitude, zoom) {
     let n = (1 << zoom) * 1.0;
     let latRad = latitude * Math.PI / 180.0;
-    return Math.floor( ( 1 - Math.log( Math.tan(latRad) + Math.sec(latRad) ) / Math.PI ) * 0.5 * n);
+    return Math.floor((1 - Math.log(Math.tan(latRad) + Math.sec(latRad)) / Math.PI) * 0.5 * n);
 }
 
 function bboxFromTile(tile) {
