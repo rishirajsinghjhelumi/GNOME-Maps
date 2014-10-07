@@ -30,16 +30,16 @@
         this._queue = [];
     },
 
-    enQueue: function(data) {
+    enqueue: function(data) {
         this._queue.push(data);
         if (this.size() > this._maxSize) {
-            this.deQueue();
+            this.dequeue();
         }
     },
 
-    deQueue: function() {
+    dequeue: function() {
         if (this.size() === 0) {
-            throw "Empty Queue!!!";
+            return null;
         }
         this._queue.splice(0, 1);
     },
@@ -49,12 +49,12 @@
         if (idx > -1) {
             this._queue.splice(idx, 1);
         }
-        this.enQueue(data);
+        this.enqueue(data);
     },
 
     front: function() {
         if (this.size() === 0) {
-            throw "Empty Queue!!!";
+            return null;
         }
         return this._queue[0];
     },

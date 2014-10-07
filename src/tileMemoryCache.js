@@ -39,7 +39,7 @@ const TileMemoryCache = new Lang.Class({
 
     store: function(tile, content) {
         this._cachedTiles[this._encodeTileCoordinates(tile)] = content;
-        this._queue.enQueue(this._encodeTileCoordinates(tile));
+        this._queue.enqueue(this._encodeTileCoordinates(tile));
     },
 
     get: function(tile) {
