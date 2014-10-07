@@ -26,7 +26,8 @@ const GLib = imports.gi.GLib;
 const Gda = imports.gi.Gda;
 
 const DB_NAME = 'gnome_maps';
-const DB_LOCATION = GLib.get_user_cache_dir() +'/gnome-maps/';
+const DB_LOCATION = GLib.build_filenamev([ GLib.get_user_cache_dir(),
+                                           'gnome-maps' ]);
 
 const DB = new Lang.Class({
     Name: 'DB',

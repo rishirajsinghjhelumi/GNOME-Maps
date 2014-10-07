@@ -27,7 +27,7 @@ const GLib = imports.gi.GLib;
 
 const _ = imports.gettext.gettext;
 
-const _UNKNOWN = _('Unknown');
+const _UNKNOWN = 'Unknown';
 const _PLACE_DEFAULT_ICON = 'poi-marker';
 
 const placeTypes = {

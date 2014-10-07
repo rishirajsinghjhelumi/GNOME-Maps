@@ -39,7 +39,7 @@
 
     dequeue: function() {
         if (this.size() === 0) {
-            return null;
+            return;
         }
         this._queue.splice(0, 1);
     },
