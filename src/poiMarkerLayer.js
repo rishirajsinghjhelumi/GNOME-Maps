@@ -28,8 +28,7 @@ const Place = imports.place;
 const Overpass = imports.overpass;
 const POIMarker = imports.poiMarker;
 const GeoMath = imports.geoMath;
-const TileMemoryCache = imports.tileMemoryCache;
-const TileDBCache = imports.tileDBCache;
+const TileCacheChain = imports.tileCacheChain;
 
 const MIN_POI_DISPLAY_ZOOM_LEVEL = 16;
 
@@ -43,8 +42,7 @@ const POIMarkerLayer = new Lang.Class({
 
         this.parent(params);
 
-        this._memoryCache = new TileMemoryCache.TileMemoryCache({});
-        this._DBCache = new TileDBCache.TileDBCache({ tableName: 'poi_cache' });
+        this._poiCache = new TileCacheChain.TileCacheChain({ cacheName: 'poi_cache' });
         this._renderedTiles = {};
         this._queries = {};
 
@@ -110,16 +108,9 @@ const POIMarkerLayer = new Lang.Class({
         if (this._isQueried(tile))
             return;
 
-        // Load tile from MemoryCache if available
-        if (this._memoryCache.isCached(tile)) {
-            this._displayTile(this._memoryCache.get(tile));
-            this._setRendered(tile);
-            return;
-        }
-
-        // Load tile from DBCache if available
-        if (this._DBCache.isCached(tile)) {
-            this._displayTile(JSON.parse(unescape(this._DBCache.get(tile))));
+        // Check Cache
+        if (this._poiCache.isCached(tile)) {
+            this._displayTile(this._poiCache.get(tile));
             this._setRendered(tile);
             return;
         }
@@ -130,15 +121,8 @@ const POIMarkerLayer = new Lang.Class({
         this._overpassQuery.send(bbox, (function(pois) {
             this._removeQuery(tile);
 
-            // Cache tile in memory
-            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, (function() {
-                this._memoryCache.store(tile, pois);
-            }).bind(this));
-
-            // Cache tile in database
-            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, (function() {
-                this._DBCache.store(tile, escape(JSON.stringify(pois)));
-            }).bind(this));
+            // Cache tile
+            this._poiCache.store(tile, pois);
 
             this._displayTile(pois);
             this._setRendered(tile);

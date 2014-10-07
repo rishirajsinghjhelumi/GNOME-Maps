@@ -44,13 +44,13 @@ const TileDBCache = new Lang.Class({
             Format.vprintf('CREATE TABLE IF NOT EXISTS %s(%s, %s, %s)',
                 [ this._tableName,
                   'tile VARCHAR(64) NOT NULL PRIMARY KEY',
-                  'places TEXT',
+                  'data TEXT',
                   'timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL' ]), null);
     },
 
     store: function(tile, content) {
         if (typeof content !== 'string')
-            throw 'Content type should be string!!!';
+            return;
 
         if (this.isCached(tile))
             return;
@@ -58,25 +58,25 @@ const TileDBCache = new Lang.Class({
         let stmt = new Gda.SqlBuilder({ stmt_type: Gda.SqlStatementType.INSERT });
         stmt.set_table(this._tableName);
         stmt.add_field_value_as_gvalue('tile', this._encodeTileCoordinates(tile));
-        stmt.add_field_value_as_gvalue('places', content);
+        stmt.add_field_value_as_gvalue('data', content);
         this._connection.statement_execute_non_select(stmt.get_statement(), null);
     },
 
     get: function(tile) {
         let query = this._connection.execute_select_command(
-            Format.vprintf('SELECT places FROM %s WHERE tile = "%s"',
+            Format.vprintf('SELECT data FROM %s WHERE tile = "%s"',
                 [ this._tableName,
                   this._encodeTileCoordinates(tile) ])
         );
 
         let iter = query.create_iter();
         iter.move_next();
-        return Gda.value_stringify(iter.get_value_for_field('places'));
+        return Gda.value_stringify(iter.get_value_for_field('data'));
     },
 
     isCached: function(tile) {
         let query = this._connection.execute_select_command(
-            Format.vprintf('SELECT places FROM %s WHERE tile = "%s"',
+            Format.vprintf('SELECT data FROM %s WHERE tile = "%s"',
                 [ this._tableName,
                   this._encodeTileCoordinates(tile) ])
         );
@@ -91,5 +91,4 @@ const TileDBCache = new Lang.Class({
                                             tile.x,
                                             tile.y ]);
     }
-
 });
